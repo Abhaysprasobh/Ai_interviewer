@@ -1,0 +1,10 @@
+flask
+flask-cors
+flask-jwt-extended
+pymongo
+python-dotenv
+vosk
+pytesseract
+Pillow
+soundfile
+google-generativeai
