@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from db import db
 from llm import generate_question, evaluate_answer
 import uuid
 
@@ -9,45 +8,19 @@ interview_bp = Blueprint("interview", __name__)
 @interview_bp.route("/start", methods=["POST"])
 @jwt_required()
 def start_interview():
-    user_id = get_jwt_identity()
-    skills = request.json.get("skills", [])
+    data = request.get_json()
 
-    session_id = str(uuid.uuid4())
+    role = data.get("role")
+    difficulty = data.get("difficulty")
 
-    db.sessions.insert_one({
-        "session_id": session_id,
-        "user_id": user_id,
-        "skills": skills,
-        "questions": []
-    })
+    if not role or not difficulty:
+        return jsonify({"error": "Missing role or difficulty"}), 400
 
-    question = generate_question(skills)
+    if difficulty not in ["easy", "medium", "hard"]:
+        return jsonify({"error": "Invalid difficulty"}), 400
+
+    question = generate_question([role, difficulty])
 
     return jsonify({
-        "session_id": session_id,
         "question": question
-    })
-
-
-@interview_bp.route("/answer", methods=["POST"])
-@jwt_required()
-def answer_question():
-    data = request.json
-    session_id = data["session_id"]
-    question = data["question"]
-    answer = data["answer"]
-
-    feedback = evaluate_answer(question, answer)
-
-    db.sessions.update_one(
-        {"session_id": session_id},
-        {"$push": {
-            "questions": {
-                "question": question,
-                "answer": answer,
-                "feedback": feedback
-            }
-        }}
-    )
-
-    return jsonify({"feedback": feedback})
+    }), 200
