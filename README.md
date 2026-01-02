@@ -8,6 +8,7 @@ Flask
 
 .venv\Scripts\activate
 
+pip install -r req.txt
 
 BASE URL
 http://127.0.0.1:5000

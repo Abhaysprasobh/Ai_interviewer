@@ -9,3 +9,5 @@ __pycache__/
 *.png
 *.jpg
 *.pdf
+
+*/node_modules/*
