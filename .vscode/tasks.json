@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Backend",
+      "type": "shell",
+      "command": "backend\\run-backend.bat",
+      "presentation": {
+        "panel": "dedicated",
+        "group": "backend",
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Frontend",
+      "type": "shell",
+      "command": "frontend\\run-frontend.bat",
+      "presentation": {
+        "panel": "dedicated",
+        "group": "frontend",
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Start Full Stack",
+      "dependsOn": ["Backend", "Frontend"],
+      "dependsOrder": "parallel"
+    }
+  ]
+}
