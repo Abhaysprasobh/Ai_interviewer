@@ -24,38 +24,68 @@ const Navbar = () => {
     };
 
 
+
+    const commonButtonStyle = {
+        color: '#555',
+        fontSize: '0.95rem',
+        transition: 'color 0.2s',
+        backgroundColor: 'transparent',
+        border: 'none',
+        padding: 0,
+        outline: 'none',
+        boxShadow: 'none',
+        cursor: 'pointer',
+        fontFamily: 'inherit'
+    };
+
     return (
-        <nav className="navbar">
-            <div className="navbar-content">
-                <Link to="/" className="navbar-brand">AI Hiring</Link>
+        <>
+            <nav className="navbar">
+                <div className="navbar-content">
+                    <Link to="/" className="navbar-brand">AI Hiring</Link>
 
-                <ul className="navbar-nav">
-                    {!user && (
-                        <>
-                            <li><Link to="/user/login" className="navbar-link">User Login</Link></li>
-                            <li><Link to="/company/login" className="navbar-link">Company Login</Link></li>
-                            <li><Link to="/privacy" className="navbar-link">Privacy</Link></li>
-                        </>
-                    )}
+                    <ul className="navbar-nav">
+                        {!user && (
+                            <>
+                                <li><Link to="/user/login" className="navbar-link">User Login</Link></li>
+                                <li><Link to="/company/login" className="navbar-link">Company Login</Link></li>
+                                <li><Link to="/privacy" className="navbar-link">Privacy</Link></li>
+                            </>
+                        )}
 
-                    {user && role === "user" && (
-                        <>
-                            <li><Link to="/jobs" className="navbar-link">Browse Jobs</Link></li>
-                            <li><Link to="/user/dashboard" className="navbar-link">My Applications</Link></li>
-                            <li><Link to="/user/profile" className="navbar-link">Profile</Link></li>
-                            <li><button onClick={handleLogout} className="navbar-link">Logout</button></li>
-                        </>
-                    )}
+                        {user && role === "user" && (
+                            <>
+                                <li><Link to="/jobs" className="navbar-link">Browse Jobs</Link></li>
+                                <li><Link to="/user/dashboard" className="navbar-link">My Applications</Link></li>
+                                <li><Link to="/user/profile" className="navbar-link">Profile</Link></li>
+                                <li>
+                                    <button
+                                        onClick={handleLogout}
+                                        style={commonButtonStyle}
+                                    >
+                                        Logout
+                                    </button>
+                                </li>
+                            </>
+                        )}
 
-                    {user && role === "company" && (
-                        <>
-                            <li><Link to="/company/dashboard" className="navbar-link">My Jobs</Link></li>
-                            <li><button onClick={handleLogout} className="navbar-link">Logout</button></li>
-                        </>
-                    )}
-                </ul>
-            </div>
-        </nav>
+                        {user && role === "company" && (
+                            <>
+                                <li><Link to="/company/dashboard" className="navbar-link">My Jobs</Link></li>
+                                <li>
+                                    <button
+                                        onClick={handleLogout}
+                                        style={commonButtonStyle}
+                                    >
+                                        Logout
+                                    </button>
+                                </li>
+                            </>
+                        )}
+                    </ul>
+                </div>
+            </nav>
+        </>
     );
 };
 
