@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error - AI Hiring Platform</title>
+  <link rel="stylesheet" href="global.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <a href="landing.html" class="navbar-brand">AI Hiring</a>
+    </div>
+  </nav>
+
+  <!-- Error Section -->
+  <section class="dashboard">
+    <div class="container-small">
+      <div class="empty-state" style="padding: 4rem 1rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+        <h1 class="empty-state-title" style="font-size: 2rem;">Something Went Wrong</h1>
+        <p class="empty-state-text" style="font-size: 1.125rem;">
+          We encountered an unexpected error. Please try again later.
+        </p>
+        
+        <!-- Error Details Card (Optional - can be hidden) -->
+        <div class="card text-left" style="margin: 2rem 0; display: none;" id="errorDetails">
+          <div class="card-header">
+            <h3 class="card-title">Error Details</h3>
+          </div>
+          <div class="card-body">
+            <p class="text-small text-muted">Error Code: <strong id="errorCode">500</strong></p>
+            <p class="text-small text-muted">Message: <span id="errorMessage">Internal Server Error</span></p>
+          </div>
+        </div>
+
+        <div class="flex gap-2 justify-center" style="margin-top: 2rem;">
+          <a href="landing.html" class="btn btn-primary btn-large">Go to Home</a>
+          <button onclick="location.reload()" class="btn btn-outline btn-large">Retry</button>
+          <button onclick="history.back()" class="btn btn-secondary btn-large">Go Back</button>
+        </div>
+        
+        <p class="text-small text-muted" style="margin-top: 2rem;">
+          If the problem persists, please contact support at support@aihiring.com
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p class="footer-text">&copy; 2024 AI Hiring Platform. All rights reserved.</p>
+      <ul class="footer-links">
+        <li><a href="privacy.html" class="footer-link">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- <script>
+    // Check if error details are passed via URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorCode = urlParams.get('code');
+    const errorMessage = urlParams.get('message');
+    
+    if (errorCode || errorMessage) {
+      const detailsCard = document.getElementById('errorDetails');
+      detailsCard.style.display = 'block';
+      
+      if (errorCode) {
+        document.getElementById('errorCode').textContent = errorCode;
+      }
+      
+      if (errorMessage) {
+        document.getElementById('errorMessage').textContent = decodeURIComponent(errorMessage);
+      }
+    }
+  </script> -->
+</body>
+</html>

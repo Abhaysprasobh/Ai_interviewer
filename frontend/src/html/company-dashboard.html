@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Dashboard - AI Hiring Platform</title>
+  <link rel="stylesheet" href="global.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <a href="landing.html" class="navbar-brand">AI Hiring</a>
+      <ul class="navbar-nav">
+        <li><a href="company-dashboard.html" class="navbar-link">My Jobs</a></li>
+        <li><button href="#" onclick="logout()" class="navbar-link">Logout</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Dashboard -->
+  <section class="dashboard">
+    <div class="container">
+      <!-- Dashboard Header -->
+      <div class="dashboard-header">
+        <div>
+          <h1 class="dashboard-title">Job Postings</h1>
+          <p class="text-muted">Manage your job listings and view applicants</p>
+        </div>
+        <a href="create-job.html" class="btn btn-primary btn-large">+ Create Job</a>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="loading hidden">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Jobs List -->
+      <div id="jobsList" class="dashboard-section">
+        <!-- Job Card 1 - Active with Applications -->
+        <div class="card card-clickable" onclick="window.location.href='view-job.html'">
+          <div class="card-header">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="card-title">Senior Software Engineer</h3>
+                <p class="text-muted text-small">Posted 2 days ago</p>
+              </div>
+              <span class="badge badge-success">Active</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="flex gap-4 mb-3">
+              <div>
+                <p class="text-small text-muted">Total Applications</p>
+                <p class="text-large text-bold">24</p>
+              </div>
+              <div>
+                <p class="text-small text-muted">Under Review</p>
+                <p class="text-large text-bold">18</p>
+              </div>
+              <div>
+                <p class="text-small text-muted">Shortlisted</p>
+                <p class="text-large text-bold">6</p>
+              </div>
+            </div>
+            <p class="text-small text-muted">
+              Mountain View, CA • Full-time • Python, Go, Kubernetes
+            </p>
+          </div>
+          <div class="card-footer">
+            <a href="view-job.html" class="btn btn-primary btn-small" onclick="event.stopPropagation()">
+              View Applicants
+            </a>
+            <a href="create-job.html" class="btn btn-outline btn-small" onclick="event.stopPropagation()">
+              Edit Job
+            </a>
+          </div>
+        </div>
+
+        <!-- Job Card 2 - Active with Applications -->
+        <div class="card card-clickable" onclick="window.location.href='view-job.html'">
+          <div class="card-header">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="card-title">Product Manager</h3>
+                <p class="text-muted text-small">Posted 5 days ago</p>
+              </div>
+              <span class="badge badge-success">Active</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="flex gap-4 mb-3">
+              <div>
+                <p class="text-small text-muted">Total Applications</p>
+                <p class="text-large text-bold">42</p>
+              </div>
+              <div>
+                <p class="text-small text-muted">Under Review</p>
+                <p class="text-large text-bold">35</p>
+              </div>
+              <div>
+                <p class="text-small text-muted">Shortlisted</p>
+                <p class="text-large text-bold">7</p>
+              </div>
+            </div>
+            <p class="text-small text-muted">
+              Remote • Full-time • Product Strategy, Agile, Cloud
+            </p>
+          </div>
+          <div class="card-footer">
+            <a href="view-job.html" class="btn btn-primary btn-small" onclick="event.stopPropagation()">
+              View Applicants
+            </a>
+            <a href="create-job.html" class="btn btn-outline btn-small" onclick="event.stopPropagation()">
+              Edit Job
+            </a>
+          </div>
+        </div>
+
+        <!-- Job Card 3 - Recently Closed -->
+        <div class="card card-clickable" onclick="window.location.href='view-job.html'">
+          <div class="card-header">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="card-title">Data Scientist</h3>
+                <p class="text-muted text-small">Posted 3 weeks ago</p>
+              </div>
+              <span class="badge badge-secondary">Closed</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="flex gap-4 mb-3">
+              <div>
+                <p class="text-small text-muted">Total Applications</p>
+                <p class="text-large text-bold">67</p>
+              </div>
+              <div>
+                <p class="text-small text-muted">Under Review</p>
+                <p class="text-large text-bold">0</p>
+              </div>
+              <div>
+                <p class="text-small text-muted">Shortlisted</p>
+                <p class="text-large text-bold">12</p>
+              </div>
+            </div>
+            <p class="text-small text-muted">
+              New York, NY • Full-time • Python, ML, SQL
+            </p>
+          </div>
+          <div class="card-footer">
+            <a href="view-job.html" class="btn btn-outline btn-small" onclick="event.stopPropagation()">
+              View Applicants
+            </a>
+          </div>
+        </div>
+
+        <!-- Job Card 4 - Draft -->
+        <div class="card card-clickable" onclick="window.location.href='create-job.html'">
+          <div class="card-header">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="card-title">Frontend Developer</h3>
+                <p class="text-muted text-small">Draft saved 1 day ago</p>
+              </div>
+              <span class="badge badge-warning">Draft</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="text-small text-muted">
+              This job posting is not yet published. Complete and publish to start receiving applications.
+            </p>
+          </div>
+          <div class="card-footer">
+            <a href="create-job.html" class="btn btn-primary btn-small" onclick="event.stopPropagation()">
+              Complete & Publish
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State (hidden by default) -->
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-state-icon">💼</div>
+        <h3 class="empty-state-title">No Jobs Posted Yet</h3>
+        <p class="empty-state-text">Create your first job posting to start receiving applications from qualified candidates.</p>
+        <a href="create-job.html" class="btn btn-primary btn-large">Create Your First Job</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p class="footer-text">&copy; 2024 AI Hiring Platform. All rights reserved.</p>
+      <ul class="footer-links">
+        <li><a href="privacy.html" class="footer-link">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- <script>
+    // Check authentication
+    const token = localStorage.getItem('companyToken');
+    if (!token) {
+      window.location.href = 'company-login.html';
+    }
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('companyToken');
+      localStorage.removeItem('userType');
+      window.location.href = 'landing.html';
+    }
+
+    // Load company jobs
+    async function loadJobs() {
+      const loadingState = document.getElementById('loadingState');
+      const jobsList = document.getElementById('jobsList');
+      const emptyState = document.getElementById('emptyState');
+      
+      loadingState.classList.remove('hidden');
+      
+      try {
+        // TODO: Replace with actual backend endpoint
+        const response = await fetch('/api/company/jobs', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        
+        const data = await response.json();
+        
+        loadingState.classList.add('hidden');
+        
+        if (data.jobs && data.jobs.length > 0) {
+          // TODO: Dynamically render jobs from data
+          jobsList.classList.remove('hidden');
+          emptyState.classList.add('hidden');
+        } else {
+          jobsList.classList.add('hidden');
+          emptyState.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Error loading jobs:', error);
+        loadingState.classList.add('hidden');
+        // Show static content on error
+      }
+    }
+
+    // Load on page load
+    // loadJobs(); // Uncomment when backend is ready
+  </script> -->
+</body>
+</html>

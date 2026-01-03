@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview in Progress - AI Hiring Platform</title>
+  <link rel="stylesheet" href="global.css">
+  <style>
+    /* Prevent navigation away */
+    body {
+      overflow-x: hidden;
+    }
+    
+    /* Progress bar */
+    .progress-container {
+      background: #f0f0f0;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    
+    .progress-bar {
+      background: #0066cc;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+    
+    /* Timer */
+    .timer {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: #ffffff;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+    
+    .timer-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0066cc;
+      font-family: monospace;
+    }
+    
+    /* Voice input indicator */
+    .voice-indicator {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    
+    .voice-indicator.active {
+      display: flex;
+      background: #dcfce7;
+      border-color: #bbf7d0;
+    }
+    
+    .recording-dot {
+      width: 12px;
+      height: 12px;
+      background: #ef4444;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Simple Navbar (no navigation during interview) -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <span class="navbar-brand">AI Interview in Progress</span>
+      <span class="text-muted text-small">Do not close this window</span>
+    </div>
+  </nav>
+
+  <!-- Timer (Fixed Position) -->
+  <div class="timer">
+    <p class="text-small text-muted" style="margin-bottom: 0.25rem;">Time Elapsed</p>
+    <div class="timer-value" id="timer">00:00</div>
+  </div>
+
+  <!-- Interview Section -->
+  <section class="dashboard">
+    <div class="container-narrow">
+      <!-- Progress Bar -->
+      <div class="mb-3">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-small text-bold">Progress</span>
+          <span class="text-small text-muted">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">5</span></span>
+        </div>
+        <div class="progress-container">
+          <div class="progress-bar" id="progressBar" style="width: 20%;"></div>
+        </div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h2 class="card-title">Question <span id="questionNumber">1</span></h2>
+        </div>
+        <div class="card-body">
+          <p id="questionText" style="font-size: 1.125rem; line-height: 1.6; color: #1a1a1a;">
+            Tell me about your experience with building scalable distributed systems. 
+            What challenges have you faced and how did you overcome them?
+          </p>
+        </div>
+      </div>
+
+      <!-- Answer Input Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Your Answer</h3>
+        </div>
+        <div class="card-body">
+          <!-- Voice Recording Indicator -->
+          <div id="voiceIndicator" class="voice-indicator">
+            <div class="recording-dot"></div>
+            <span class="text-small text-bold">Recording...</span>
+          </div>
+
+          <!-- Text Answer Input -->
+          <div class="form-group">
+            <textarea 
+              id="answerText" 
+              name="answerText" 
+              class="form-textarea" 
+              placeholder="Type your answer here..."
+              rows="10"
+              style="font-size: 1rem;"
+            ></textarea>
+            <span class="form-help">
+              <span id="wordCount">0</span> words • Aim for detailed, specific answers
+            </span>
+          </div>
+
+          <!-- Input Options -->
+          <div class="flex gap-2 mb-3">
+            <button class="btn btn-secondary" id="voiceBtn" onclick="toggleVoiceInput()">
+              🎤 Voice Input
+            </button>
+            <button class="btn btn-secondary" onclick="clearAnswer()">
+              Clear
+            </button>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="flex gap-2 justify-between">
+            <button class="btn btn-outline" id="prevBtn" onclick="previousQuestion()" disabled>
+              ← Previous
+            </button>
+            <button class="btn btn-primary btn-large" id="nextBtn" onclick="nextQuestion()">
+              Next Question →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tips Card -->
+      <div class="card" style="background: #f9f9f9;">
+        <p class="text-small text-muted" style="margin: 0;">
+          💡 <strong>Tip:</strong> Take your time to provide thoughtful, detailed answers. 
+          Use specific examples from your experience when possible.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Submit Confirmation Modal -->
+  <div id="submitModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Submit Interview</h3>
+      </div>
+      <div class="modal-body">
+        <p>You've completed all questions. Are you ready to submit your interview?</p>
+        <p class="text-bold">You will not be able to change your answers after submission.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeSubmitModal()">Review Answers</button>
+        <button class="btn btn-primary" onclick="submitInterview()">Submit Interview</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- <script>
+    // Check authentication
+    const token = localStorage.getItem('userToken');
+    if (!token) {
+      window.location.href = 'user-login.html';
+    }
+
+    // Interview state
+    let currentQuestionIndex = 0;
+    let answers = [];
+    let isRecording = false;
+    let timerSeconds = 0;
+    let timerInterval;
+
+    const questions = [
+      "Tell me about your experience with building scalable distributed systems. What challenges have you faced and how did you overcome them?",
+      "Describe a complex technical problem you solved. What was your approach and what was the outcome?",
+      "How do you ensure code quality and maintainability in a large codebase?",
+      "Tell me about a time when you had to learn a new technology quickly. How did you approach it?",
+      "How do you handle disagreements with team members about technical decisions?"
+    ];
+
+    // Initialize answers array
+    questions.forEach(() => answers.push(""));
+
+    // Start timer
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timerSeconds++;
+        const minutes = Math.floor(timerSeconds / 60);
+        const seconds = timerSeconds % 60;
+        document.getElementById('timer').textContent = 
+          `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    // Update progress
+    function updateProgress() {
+      const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+      document.getElementById('progressBar').style.width = `${progress}%`;
+      document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+      document.getElementById('totalQuestions').textContent = questions.length;
+      document.getElementById('questionNumber').textContent = currentQuestionIndex + 1;
+      document.getElementById('questionText').textContent = questions[currentQuestionIndex];
+      
+      // Load saved answer
+      document.getElementById('answerText').value = answers[currentQuestionIndex];
+      updateWordCount();
+      
+      // Update buttons
+      document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+      
+      const nextBtn = document.getElementById('nextBtn');
+      if (currentQuestionIndex === questions.length - 1) {
+        nextBtn.textContent = 'Submit Interview';
+        nextBtn.classList.remove('btn-primary');
+        nextBtn.classList.add('btn-success');
+      } else {
+        nextBtn.textContent = 'Next Question →';
+        nextBtn.classList.add('btn-primary');
+        nextBtn.classList.remove('btn-success');
+      }
+    }
+
+    // Save current answer
+    function saveCurrentAnswer() {
+      answers[currentQuestionIndex] = document.getElementById('answerText').value;
+    }
+
+    // Next question
+    function nextQuestion() {
+      saveCurrentAnswer();
+      
+      if (currentQuestionIndex === questions.length - 1) {
+        // Last question - show submit modal
+        document.getElementById('submitModal').classList.add('active');
+      } else {
+        currentQuestionIndex++;
+        updateProgress();
+      }
+    }
+
+    // Previous question
+    function previousQuestion() {
+      saveCurrentAnswer();
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        updateProgress();
+      }
+    }
+
+    // Toggle voice input
+    function toggleVoiceInput() {
+      const voiceBtn = document.getElementById('voiceBtn');
+      const voiceIndicator = document.getElementById('voiceIndicator');
+      
+      if (isRecording) {
+        // Stop recording
+        isRecording = false;
+        voiceBtn.textContent = '🎤 Voice Input';
+        voiceIndicator.classList.remove('active');
+        // TODO: Implement actual voice recording stop
+      } else {
+        // Start recording
+        isRecording = true;
+        voiceBtn.textContent = '⏹ Stop Recording';
+        voiceIndicator.classList.add('active');
+        // TODO: Implement actual voice recording start
+        alert('Voice input feature will be implemented with Web Speech API or similar');
+      }
+    }
+
+    // Clear answer
+    function clearAnswer() {
+      if (confirm('Are you sure you want to clear your answer?')) {
+        document.getElementById('answerText').value = '';
+        updateWordCount();
+      }
+    }
+
+    // Word count
+    function updateWordCount() {
+      const text = document.getElementById('answerText').value;
+      const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+      document.getElementById('wordCount').textContent = words.length;
+    }
+
+    // Close submit modal
+    function closeSubmitModal() {
+      document.getElementById('submitModal').classList.remove('active');
+    }
+
+    // Submit interview
+    async function submitInterview() {
+      saveCurrentAnswer();
+      
+      // Check if all questions are answered
+      const unanswered = answers.filter(a => !a.trim()).length;
+      if (unanswered > 0) {
+        if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) {
+          closeSubmitModal();
+          return;
+        }
+      }
+      
+      clearInterval(timerInterval);
+      
+      try {
+        // TODO: Replace with actual backend endpoint
+        const urlParams = new URLSearchParams(window.location.search);
+        const applicationId = urlParams.get('applicationId');
+        
+        const response = await fetch('/api/interviews/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            applicationId,
+            answers,
+            timeSpent: timerSeconds,
+          }),
+        });
+        
+        if (response.ok) {
+          alert('Interview submitted successfully!');
+          window.location.href = 'user-dashboard.html';
+        } else {
+          alert('Failed to submit interview. Please try again.');
+        }
+      } catch (error) {
+        console.error('Submit error:', error);
+        alert('An error occurred. Please try again.');
+      }
+    }
+
+    // Prevent accidental navigation
+    window.addEventListener('beforeunload', (e) => {
+      e.preventDefault();
+      e.returnValue = 'Your interview is in progress. Are you sure you want to leave?';
+      return e.returnValue;
+    });
+
+    // Word count update on input
+    document.getElementById('answerText').addEventListener('input', updateWordCount);
+
+    // Initialize
+    updateProgress();
+    startTimer();
+  </script> -->
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Jobs - AI Hiring Platform</title>
+  <link rel="stylesheet" href="global.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <a href="landing.html" class="navbar-brand">AI Hiring</a>
+      <ul class="navbar-nav">
+        <li><a href="jobs-listing.html" class="navbar-link">Browse Jobs</a></li>
+        <li><a href="user-dashboard.html" class="navbar-link">My Applications</a></li>
+        <li><a href="user-profile.html" class="navbar-link">Profile</a></li>
+        <li><a href="#" onclick="logout()" class="navbar-link">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Jobs Listing Section -->
+  <section class="dashboard">
+    <div class="container">
+      <!-- Page Header -->
+      <div class="dashboard-header">
+        <div>
+          <h1 class="dashboard-title">Browse Jobs</h1>
+          <p class="text-muted">Find your next opportunity</p>
+        </div>
+      </div>
+
+      <!-- Filters (Optional - Can be expanded) -->
+      <div class="card mb-4">
+        <div class="flex gap-2">
+          <input 
+            type="text" 
+            id="searchInput" 
+            class="form-input" 
+            placeholder="Search by job title or company..."
+            style="max-width: 400px;"
+          >
+          <button class="btn btn-primary" onclick="searchJobs()">Search</button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="loading hidden">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Jobs List -->
+      <div id="jobsList">
+        <!-- Job Card 1 -->
+        <div class="job-card" onclick="window.location.href='job-detail.html'">
+          <h3 class="job-card-title">Senior Software Engineer</h3>
+          <p class="job-card-company">Google</p>
+          <div class="job-card-meta">
+            <span>📍 Mountain View, CA</span>
+            <span>📅 Posted 2 days ago</span>
+          </div>
+          <p class="job-card-description">
+            We're looking for an experienced software engineer to join our core infrastructure team. 
+            You'll work on building scalable systems that serve billions of users.
+          </p>
+          <div class="job-card-footer">
+            <div class="job-card-skills">
+              <span class="badge badge-primary">Python</span>
+              <span class="badge badge-primary">Go</span>
+              <span class="badge badge-primary">Kubernetes</span>
+            </div>
+            <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); window.location.href='job-apply.html'">
+              Apply Now
+            </button>
+          </div>
+        </div>
+
+        <!-- Job Card 2 -->
+        <div class="job-card" onclick="window.location.href='job-detail.html'">
+          <h3 class="job-card-title">Product Manager</h3>
+          <p class="job-card-company">Microsoft</p>
+          <div class="job-card-meta">
+            <span>📍 Seattle, WA</span>
+            <span>📅 Posted 3 days ago</span>
+          </div>
+          <p class="job-card-description">
+            Lead product strategy and execution for our cloud services platform. 
+            Work with engineering, design, and business teams to deliver innovative solutions.
+          </p>
+          <div class="job-card-footer">
+            <div class="job-card-skills">
+              <span class="badge badge-primary">Product Strategy</span>
+              <span class="badge badge-primary">Agile</span>
+              <span class="badge badge-primary">Cloud</span>
+            </div>
+            <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); window.location.href='job-apply.html'">
+              Apply Now
+            </button>
+          </div>
+        </div>
+
+        <!-- Job Card 3 -->
+        <div class="job-card" onclick="window.location.href='job-detail.html'">
+          <h3 class="job-card-title">Data Scientist</h3>
+          <p class="job-card-company">Amazon</p>
+          <div class="job-card-meta">
+            <span>📍 New York, NY</span>
+            <span>📅 Posted 5 days ago</span>
+          </div>
+          <p class="job-card-description">
+            Join our data science team to build machine learning models that power personalization 
+            and recommendations for millions of customers.
+          </p>
+          <div class="job-card-footer">
+            <div class="job-card-skills">
+              <span class="badge badge-primary">Python</span>
+              <span class="badge badge-primary">ML</span>
+              <span class="badge badge-primary">SQL</span>
+            </div>
+            <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); window.location.href='job-apply.html'">
+              Apply Now
+            </button>
+          </div>
+        </div>
+
+        <!-- Job Card 4 -->
+        <div class="job-card" onclick="window.location.href='job-detail.html'">
+          <h3 class="job-card-title">Frontend Developer</h3>
+          <p class="job-card-company">Meta</p>
+          <div class="job-card-meta">
+            <span>📍 Menlo Park, CA</span>
+            <span>📅 Posted 1 week ago</span>
+          </div>
+          <p class="job-card-description">
+            Build and maintain user interfaces for our social media platforms. 
+            Work with React, modern JavaScript, and cutting-edge web technologies.
+          </p>
+          <div class="job-card-footer">
+            <div class="job-card-skills">
+              <span class="badge badge-primary">React</span>
+              <span class="badge badge-primary">JavaScript</span>
+              <span class="badge badge-primary">CSS</span>
+            </div>
+            <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); window.location.href='job-apply.html'">
+              Apply Now
+            </button>
+          </div>
+        </div>
+
+        <!-- Job Card 5 -->
+        <div class="job-card" onclick="window.location.href='job-detail.html'">
+          <h3 class="job-card-title">UX Designer</h3>
+          <p class="job-card-company">Apple</p>
+          <div class="job-card-meta">
+            <span>📍 Cupertino, CA</span>
+            <span>📅 Posted 1 week ago</span>
+          </div>
+          <p class="job-card-description">
+            Design beautiful and intuitive user experiences for our next generation of products. 
+            Collaborate with product and engineering teams.
+          </p>
+          <div class="job-card-footer">
+            <div class="job-card-skills">
+              <span class="badge badge-primary">Figma</span>
+              <span class="badge badge-primary">UI/UX</span>
+              <span class="badge badge-primary">Design Systems</span>
+            </div>
+            <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); window.location.href='job-apply.html'">
+              Apply Now
+            </button>
+          </div>
+        </div>
+
+        <!-- Job Card 6 -->
+        <div class="job-card" onclick="window.location.href='job-detail.html'">
+          <h3 class="job-card-title">Backend Engineer</h3>
+          <p class="job-card-company">Netflix</p>
+          <div class="job-card-meta">
+            <span>📍 Los Gatos, CA</span>
+            <span>📅 Posted 2 weeks ago</span>
+          </div>
+          <p class="job-card-description">
+            Build and scale backend services that power streaming for millions of users worldwide. 
+            Work with microservices, distributed systems, and cloud infrastructure.
+          </p>
+          <div class="job-card-footer">
+            <div class="job-card-skills">
+              <span class="badge badge-primary">Java</span>
+              <span class="badge badge-primary">AWS</span>
+              <span class="badge badge-primary">Microservices</span>
+            </div>
+            <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); window.location.href='job-apply.html'">
+              Apply Now
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State (hidden by default) -->
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-state-icon">🔍</div>
+        <h3 class="empty-state-title">No Jobs Found</h3>
+        <p class="empty-state-text">Try adjusting your search criteria or check back later for new opportunities.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p class="footer-text">&copy; 2024 AI Hiring Platform. All rights reserved.</p>
+      <ul class="footer-links">
+        <li><a href="privacy.html" class="footer-link">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- <script>
+    // Check authentication
+    const token = localStorage.getItem('userToken');
+    if (!token) {
+      window.location.href = 'user-login.html';
+    }
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('userType');
+      window.location.href = 'landing.html';
+    }
+
+    // Load jobs
+    async function loadJobs() {
+      const loadingState = document.getElementById('loadingState');
+      const jobsList = document.getElementById('jobsList');
+      const emptyState = document.getElementById('emptyState');
+      
+      loadingState.classList.remove('hidden');
+      
+      try {
+        // TODO: Replace with actual backend endpoint
+        const response = await fetch('/api/jobs', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        
+        const data = await response.json();
+        
+        loadingState.classList.add('hidden');
+        
+        if (data.jobs && data.jobs.length > 0) {
+          // TODO: Dynamically render jobs from data
+          jobsList.classList.remove('hidden');
+          emptyState.classList.add('hidden');
+        } else {
+          jobsList.classList.add('hidden');
+          emptyState.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Error loading jobs:', error);
+        loadingState.classList.add('hidden');
+        // Show static content on error
+      }
+    }
+
+    // Search jobs
+    function searchJobs() {
+      const searchTerm = document.getElementById('searchInput').value;
+      console.log('Searching for:', searchTerm);
+      // TODO: Implement search functionality
+      // This would filter jobs or make a new API call with search params
+    }
+
+    // Load on page load
+    // loadJobs(); // Uncomment when backend is ready
+  </script> -->
+</body>
+</html>

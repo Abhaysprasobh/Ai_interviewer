@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Job - AI Hiring Platform</title>
+  <link rel="stylesheet" href="global.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <a href="landing.html" class="navbar-brand">AI Hiring</a>
+      <ul class="navbar-nav">
+        <li><a href="company-dashboard.html" class="navbar-link">My Jobs</a></li>
+        <li><a href="#" onclick="logout()" class="navbar-link">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Create Job Form -->
+  <section class="dashboard">
+    <div class="container-narrow">
+      <!-- Back Button -->
+      <div class="mb-3">
+        <a href="company-dashboard.html" class="btn btn-secondary btn-small">← Back to Dashboard</a>
+      </div>
+
+      <!-- Page Header -->
+      <div class="mb-4">
+        <h1 class="dashboard-title">Create Job Posting</h1>
+        <p class="text-muted">Fill in the job details to start receiving applications</p>
+      </div>
+
+      <!-- Alert Messages -->
+      <div id="successMessage" class="alert alert-success hidden"></div>
+      <div id="errorMessage" class="alert alert-error hidden"></div>
+
+      <!-- Job Form Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Job Details</h2>
+        </div>
+        <div class="card-body">
+          <form id="jobForm">
+            <!-- Job Title -->
+            <div class="form-group">
+              <label for="jobTitle" class="form-label">Job Title *</label>
+              <input 
+                type="text" 
+                id="jobTitle" 
+                name="jobTitle" 
+                class="form-input" 
+                placeholder="e.g., Senior Software Engineer"
+                required
+              >
+            </div>
+
+            <!-- Job Type -->
+            <div class="form-group">
+              <label for="jobType" class="form-label">Job Type *</label>
+              <select id="jobType" name="jobType" class="form-select" required>
+                <option value="">Select job type</option>
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="contract">Contract</option>
+                <option value="internship">Internship</option>
+              </select>
+            </div>
+
+            <!-- Location -->
+            <div class="form-group">
+              <label for="location" class="form-label">Location</label>
+              <input 
+                type="text" 
+                id="location" 
+                name="location" 
+                class="form-input" 
+                placeholder="e.g., San Francisco, CA or Remote"
+              >
+            </div>
+
+            <!-- Job Description -->
+            <div class="form-group">
+              <label for="description" class="form-label">Job Description *</label>
+              <textarea 
+                id="description" 
+                name="description" 
+                class="form-textarea" 
+                placeholder="Describe the role, responsibilities, and what makes this position exciting..."
+                rows="6"
+                required
+              ></textarea>
+              <span class="form-help">Be detailed - this helps attract the right candidates</span>
+            </div>
+
+            <!-- Required Skills -->
+            <div class="form-group">
+              <label for="skills" class="form-label">Required Skills *</label>
+              <input 
+                type="text" 
+                id="skills" 
+                name="skills" 
+                class="form-input" 
+                placeholder="e.g., Python, React, AWS (comma-separated)"
+                required
+              >
+              <span class="form-help">Separate skills with commas</span>
+            </div>
+
+            <!-- Experience Level -->
+            <div class="form-group">
+              <label for="experience" class="form-label">Experience Level</label>
+              <select id="experience" name="experience" class="form-select">
+                <option value="">Select experience level</option>
+                <option value="entry">Entry Level (0-2 years)</option>
+                <option value="mid">Mid Level (2-5 years)</option>
+                <option value="senior">Senior Level (5+ years)</option>
+                <option value="lead">Lead/Principal (8+ years)</option>
+              </select>
+            </div>
+
+            <!-- Salary Range (Optional) -->
+            <div class="form-group">
+              <label for="salaryMin" class="form-label">Salary Range (Optional)</label>
+              <div class="flex gap-2">
+                <input 
+                  type="number" 
+                  id="salaryMin" 
+                  name="salaryMin" 
+                  class="form-input" 
+                  placeholder="Min (e.g., 80000)"
+                  min="0"
+                >
+                <input 
+                  type="number" 
+                  id="salaryMax" 
+                  name="salaryMax" 
+                  class="form-input" 
+                  placeholder="Max (e.g., 120000)"
+                  min="0"
+                >
+              </div>
+              <span class="form-help">Annual salary in USD</span>
+            </div>
+
+            <!-- Responsibilities (Optional) -->
+            <div class="form-group">
+              <label for="responsibilities" class="form-label">Key Responsibilities (Optional)</label>
+              <textarea 
+                id="responsibilities" 
+                name="responsibilities" 
+                class="form-textarea" 
+                placeholder="List the main responsibilities of this role..."
+                rows="5"
+              ></textarea>
+            </div>
+
+            <!-- Qualifications (Optional) -->
+            <div class="form-group">
+              <label for="qualifications" class="form-label">Required Qualifications (Optional)</label>
+              <textarea 
+                id="qualifications" 
+                name="qualifications" 
+                class="form-textarea" 
+                placeholder="List educational requirements, certifications, etc..."
+                rows="4"
+              ></textarea>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2">
+              <button type="submit" class="btn btn-primary btn-large">
+                Publish Job
+              </button>
+              <button type="button" class="btn btn-secondary btn-large" onclick="saveDraft()">
+                Save as Draft
+              </button>
+              <a href="company-dashboard.html" class="btn btn-outline btn-large">
+                Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Info Card -->
+      <div class="card" style="background: #f9f9f9;">
+        <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">After Publishing</h3>
+        <ul style="padding-left: 1.5rem; margin: 0; color: #555;">
+          <li style="margin-bottom: 0.5rem;">Candidates will be able to apply with their resumes</li>
+          <li style="margin-bottom: 0.5rem;">Our AI will automatically screen and score applications</li>
+          <li style="margin-bottom: 0.5rem;">You'll be able to review AI-scored applicants and their interview responses</li>
+          <li style="margin-bottom: 0.5rem;">You can invite candidates for further rounds or make hiring decisions</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p class="footer-text">&copy; 2024 AI Hiring Platform. All rights reserved.</p>
+      <ul class="footer-links">
+        <li><a href="privacy.html" class="footer-link">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- <script>
+    // Check authentication
+    const token = localStorage.getItem('companyToken');
+    if (!token) {
+      window.location.href = 'company-login.html';
+    }
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('companyToken');
+      localStorage.removeItem('userType');
+      window.location.href = 'landing.html';
+    }
+
+    // Handle job form submission (Publish)
+    document.getElementById('jobForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const successDiv = document.getElementById('successMessage');
+      const errorDiv = document.getElementById('errorMessage');
+      
+      successDiv.classList.add('hidden');
+      errorDiv.classList.add('hidden');
+      
+      const formData = {
+        jobTitle: document.getElementById('jobTitle').value,
+        jobType: document.getElementById('jobType').value,
+        location: document.getElementById('location').value,
+        description: document.getElementById('description').value,
+        skills: document.getElementById('skills').value,
+        experience: document.getElementById('experience').value,
+        salaryMin: document.getElementById('salaryMin').value,
+        salaryMax: document.getElementById('salaryMax').value,
+        responsibilities: document.getElementById('responsibilities').value,
+        qualifications: document.getElementById('qualifications').value,
+        status: 'published',
+      };
+      
+      try {
+        // TODO: Replace with actual backend endpoint
+        const response = await fetch('/api/company/jobs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          successDiv.textContent = 'Job published successfully! Redirecting...';
+          successDiv.classList.remove('hidden');
+          window.scrollTo(0, 0);
+          
+          // Redirect to dashboard
+          setTimeout(() => {
+            window.location.href = 'company-dashboard.html';
+          }, 1500);
+        } else {
+          errorDiv.textContent = data.message || 'Failed to publish job. Please try again.';
+          errorDiv.classList.remove('hidden');
+          window.scrollTo(0, 0);
+        }
+      } catch (error) {
+        console.error('Job creation error:', error);
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.classList.remove('hidden');
+        window.scrollTo(0, 0);
+      }
+    });
+
+    // Save as draft function
+    async function saveDraft() {
+      const successDiv = document.getElementById('successMessage');
+      const errorDiv = document.getElementById('errorMessage');
+      
+      successDiv.classList.add('hidden');
+      errorDiv.classList.add('hidden');
+      
+      const formData = {
+        jobTitle: document.getElementById('jobTitle').value,
+        jobType: document.getElementById('jobType').value,
+        location: document.getElementById('location').value,
+        description: document.getElementById('description').value,
+        skills: document.getElementById('skills').value,
+        experience: document.getElementById('experience').value,
+        salaryMin: document.getElementById('salaryMin').value,
+        salaryMax: document.getElementById('salaryMax').value,
+        responsibilities: document.getElementById('responsibilities').value,
+        qualifications: document.getElementById('qualifications').value,
+        status: 'draft',
+      };
+      
+      try {
+        const response = await fetch('/api/company/jobs/draft', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          successDiv.textContent = 'Draft saved successfully!';
+          successDiv.classList.remove('hidden');
+          window.scrollTo(0, 0);
+        } else {
+          errorDiv.textContent = data.message || 'Failed to save draft.';
+          errorDiv.classList.remove('hidden');
+          window.scrollTo(0, 0);
+        }
+      } catch (error) {
+        console.error('Draft save error:', error);
+        errorDiv.textContent = 'An error occurred while saving draft.';
+        errorDiv.classList.remove('hidden');
+        window.scrollTo(0, 0);
+      }
+    }
+
+    // Load existing job if editing
+    async function loadJobData() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const jobId = urlParams.get('id');
+      
+      if (!jobId) return;
+      
+      try {
+        const response = await fetch(`/api/company/jobs/${jobId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.job) {
+          // Populate form with existing data
+          document.getElementById('jobTitle').value = data.job.jobTitle || '';
+          document.getElementById('jobType').value = data.job.jobType || '';
+          document.getElementById('location').value = data.job.location || '';
+          document.getElementById('description').value = data.job.description || '';
+          document.getElementById('skills').value = data.job.skills || '';
+          document.getElementById('experience').value = data.job.experience || '';
+          document.getElementById('salaryMin').value = data.job.salaryMin || '';
+          document.getElementById('salaryMax').value = data.job.salaryMax || '';
+          document.getElementById('responsibilities').value = data.job.responsibilities || '';
+          document.getElementById('qualifications').value = data.job.qualifications || '';
+        }
+      } catch (error) {
+        console.error('Error loading job data:', error);
+      }
+    }
+
+    // Load job data if editing
+    // loadJobData(); // Uncomment when backend is ready
+  </script> -->
+</body>
+</html>

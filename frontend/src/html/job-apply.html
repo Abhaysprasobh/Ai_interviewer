@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apply for Job - AI Hiring Platform</title>
+  <link rel="stylesheet" href="global.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <a href="landing.html" class="navbar-brand">AI Hiring</a>
+      <ul class="navbar-nav">
+        <li><a href="jobs-listing.html" class="navbar-link">Browse Jobs</a></li>
+        <li><a href="user-dashboard.html" class="navbar-link">My Applications</a></li>
+        <li><a href="user-profile.html" class="navbar-link">Profile</a></li>
+        <li><a href="#" onclick="logout()" class="navbar-link">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Application Form Section -->
+  <section class="dashboard">
+    <div class="container-narrow">
+      <!-- Back Button -->
+      <div class="mb-3">
+        <a href="job-detail.html" class="btn btn-secondary btn-small">← Back to Job</a>
+      </div>
+
+      <!-- Job Info Card -->
+      <div class="card mb-4">
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Apply for Senior Software Engineer</h2>
+        <p class="text-muted">Google • Mountain View, CA</p>
+      </div>
+
+      <!-- Application Form -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Application Details</h3>
+        </div>
+        <div class="card-body">
+          <!-- Success/Error Messages -->
+          <div id="successMessage" class="alert alert-success hidden"></div>
+          <div id="errorMessage" class="alert alert-error hidden"></div>
+
+          <form id="applicationForm">
+            <!-- Full Name -->
+            <div class="form-group">
+              <label for="fullName" class="form-label">Full Name *</label>
+              <input 
+                type="text" 
+                id="fullName" 
+                name="fullName" 
+                class="form-input" 
+                placeholder="John Doe"
+                required
+              >
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label for="email" class="form-label">Email Address *</label>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                class="form-input" 
+                placeholder="your.email@example.com"
+                required
+              >
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group">
+              <label for="phone" class="form-label">Phone Number *</label>
+              <input 
+                type="tel" 
+                id="phone" 
+                name="phone" 
+                class="form-input" 
+                placeholder="+1 234 567 8900"
+                required
+              >
+            </div>
+
+            <!-- WhatsApp Number (Optional) -->
+            <div class="form-group">
+              <label for="whatsapp" class="form-label">WhatsApp Number (Optional)</label>
+              <input 
+                type="tel" 
+                id="whatsapp" 
+                name="whatsapp" 
+                class="form-input" 
+                placeholder="+1 234 567 8900"
+              >
+              <span class="form-help">For interview scheduling notifications</span>
+            </div>
+
+            <!-- Resume Upload -->
+            <div class="form-group">
+              <label for="resume" class="form-label">Resume / CV *</label>
+              <input 
+                type="file" 
+                id="resume" 
+                name="resume" 
+                class="form-input form-file" 
+                accept=".pdf,.doc,.docx"
+                required
+              >
+              <span class="form-help">PDF, DOC, or DOCX (Max 5MB)</span>
+              <span id="resumeError" class="form-error hidden">Please upload a valid resume file</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Optional Fields Section -->
+            <h3 style="font-size: 1.125rem; margin-bottom: 1rem;">Additional Information (Optional)</h3>
+
+            <!-- Education -->
+            <div class="form-group">
+              <label for="education" class="form-label">Highest Education</label>
+              <select id="education" name="education" class="form-select">
+                <option value="">Select education level</option>
+                <option value="high-school">High School</option>
+                <option value="associate">Associate Degree</option>
+                <option value="bachelor">Bachelor's Degree</option>
+                <option value="master">Master's Degree</option>
+                <option value="phd">PhD</option>
+              </select>
+            </div>
+
+            <!-- CGPA/Percentage -->
+            <div class="form-group">
+              <label for="marks" class="form-label">CGPA / Percentage</label>
+              <input 
+                type="text" 
+                id="marks" 
+                name="marks" 
+                class="form-input" 
+                placeholder="e.g., 8.5 CGPA or 85%"
+              >
+            </div>
+
+            <!-- Years of Experience -->
+            <div class="form-group">
+              <label for="experience" class="form-label">Years of Experience</label>
+              <input 
+                type="number" 
+                id="experience" 
+                name="experience" 
+                class="form-input" 
+                placeholder="e.g., 5"
+                min="0"
+              >
+            </div>
+
+            <!-- Cover Letter / Message -->
+            <div class="form-group">
+              <label for="coverLetter" class="form-label">Cover Letter / Message</label>
+              <textarea 
+                id="coverLetter" 
+                name="coverLetter" 
+                class="form-textarea" 
+                placeholder="Tell us why you're a great fit for this role..."
+                rows="6"
+              ></textarea>
+              <span class="form-help">Optional but recommended</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Terms Checkbox -->
+            <div class="form-group">
+              <div class="form-checkbox-group">
+                <input 
+                  type="checkbox" 
+                  id="consent" 
+                  name="consent" 
+                  class="form-checkbox"
+                  required
+                >
+                <label for="consent" class="form-label" style="margin-bottom: 0;">
+                  I consent to AI-powered resume screening and interview processing
+                </label>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-large btn-block">
+              Submit Application
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Info Card -->
+      <div class="card" style="background: #f9f9f9;">
+        <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">What happens next?</h3>
+        <ol style="padding-left: 1.5rem; margin: 0; color: #555;">
+          <li style="margin-bottom: 0.5rem;">Your resume will be reviewed by our AI within 24 hours</li>
+          <li style="margin-bottom: 0.5rem;">If selected, you'll receive an invitation for an AI interview</li>
+          <li style="margin-bottom: 0.5rem;">Complete the interview at your convenience</li>
+          <li style="margin-bottom: 0.5rem;">The company will review your profile and contact you</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p class="footer-text">&copy; 2024 AI Hiring Platform. All rights reserved.</p>
+      <ul class="footer-links">
+        <li><a href="privacy.html" class="footer-link">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- <script>
+    // Check authentication
+    const token = localStorage.getItem('userToken');
+    if (!token) {
+      window.location.href = 'user-login.html';
+    }
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('userType');
+      window.location.href = 'landing.html';
+    }
+
+    // Handle form submission
+    document.getElementById('applicationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const successDiv = document.getElementById('successMessage');
+      const errorDiv = document.getElementById('errorMessage');
+      const resumeError = document.getElementById('resumeError');
+      
+      // Hide previous messages
+      successDiv.classList.add('hidden');
+      errorDiv.classList.add('hidden');
+      resumeError.classList.add('hidden');
+      
+      // Validate resume file
+      const resumeFile = document.getElementById('resume').files[0];
+      if (!resumeFile) {
+        resumeError.textContent = 'Please upload your resume';
+        resumeError.classList.remove('hidden');
+        return;
+      }
+      
+      // Check file size (5MB max)
+      if (resumeFile.size > 5 * 1024 * 1024) {
+        resumeError.textContent = 'File size must be less than 5MB';
+        resumeError.classList.remove('hidden');
+        return;
+      }
+      
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('fullName', document.getElementById('fullName').value);
+      formData.append('email', document.getElementById('email').value);
+      formData.append('phone', document.getElementById('phone').value);
+      formData.append('whatsapp', document.getElementById('whatsapp').value);
+      formData.append('resume', resumeFile);
+      formData.append('education', document.getElementById('education').value);
+      formData.append('marks', document.getElementById('marks').value);
+      formData.append('experience', document.getElementById('experience').value);
+      formData.append('coverLetter', document.getElementById('coverLetter').value);
+      
+      // Get job ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const jobId = urlParams.get('id') || 'job-123'; // Default for demo
+      formData.append('jobId', jobId);
+      
+      try {
+        // TODO: Replace with actual backend endpoint
+        const response = await fetch('/api/applications/submit', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formData,
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          successDiv.textContent = 'Application submitted successfully! Redirecting to dashboard...';
+          successDiv.classList.remove('hidden');
+          
+          // Redirect to dashboard after 2 seconds
+          setTimeout(() => {
+            window.location.href = 'user-dashboard.html';
+          }, 2000);
+        } else {
+          errorDiv.textContent = data.message || 'Failed to submit application. Please try again.';
+          errorDiv.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Application submission error:', error);
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.classList.remove('hidden');
+      }
+    });
+
+    // Pre-fill user data if available
+    async function loadUserProfile() {
+      try {
+        const response = await fetch('/api/user/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.user) {
+          // Pre-fill form fields
+          if (data.user.fullName) document.getElementById('fullName').value = data.user.fullName;
+          if (data.user.email) document.getElementById('email').value = data.user.email;
+          if (data.user.phone) document.getElementById('phone').value = data.user.phone;
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
+    }
+
+    // Load user profile on page load
+    // loadUserProfile(); // Uncomment when backend is ready
+  </script> -->
+</body>
+</html>

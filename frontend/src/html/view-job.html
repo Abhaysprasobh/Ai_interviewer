@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Applicants - AI Hiring Platform</title>
+  <link rel="stylesheet" href="global.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <a href="landing.html" class="navbar-brand">AI Hiring</a>
+      <ul class="navbar-nav">
+        <li><a href="company-dashboard.html" class="navbar-link">My Jobs</a></li>
+        <li><a href="#" onclick="logout()" class="navbar-link">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- View Job Section -->
+  <section class="dashboard">
+    <div class="container">
+      <!-- Back Button -->
+      <div class="mb-3">
+        <a href="company-dashboard.html" class="btn btn-secondary btn-small">← Back to Jobs</a>
+      </div>
+
+      <!-- Job Header -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="flex justify-between items-center">
+            <div>
+              <h1 class="card-title" style="font-size: 1.75rem; margin-bottom: 0.5rem;">
+                Senior Software Engineer
+              </h1>
+              <p class="text-muted">Mountain View, CA • Full-time • Posted 2 days ago</p>
+            </div>
+            <span class="badge badge-success" style="font-size: 1rem; padding: 0.5rem 1rem;">Active</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="flex gap-4">
+            <div>
+              <p class="text-small text-muted">Total Applications</p>
+              <p class="text-large text-bold" style="font-size: 2rem;">24</p>
+            </div>
+            <div>
+              <p class="text-small text-muted">Under Review</p>
+              <p class="text-large text-bold" style="font-size: 2rem;">18</p>
+            </div>
+            <div>
+              <p class="text-small text-muted">Shortlisted</p>
+              <p class="text-large text-bold" style="font-size: 2rem;">6</p>
+            </div>
+            <div>
+              <p class="text-small text-muted">Rejected</p>
+              <p class="text-large text-bold" style="font-size: 2rem;">0</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card mb-4">
+        <div class="flex gap-2 items-center">
+          <label class="text-small text-bold">Filter by Status:</label>
+          <select id="statusFilter" class="form-select" style="max-width: 200px;" onchange="filterApplicants()">
+            <option value="all">All Applicants</option>
+            <option value="submitted">Submitted</option>
+            <option value="reviewed">Resume Reviewed</option>
+            <option value="interview-pending">Interview Pending</option>
+            <option value="interview-completed">Interview Completed</option>
+            <option value="shortlisted">Shortlisted</option>
+            <option value="rejected">Rejected</option>
+          </select>
+
+          <label class="text-small text-bold" style="margin-left: 2rem;">Sort by:</label>
+          <select id="sortFilter" class="form-select" style="max-width: 200px;" onchange="sortApplicants()">
+            <option value="date-desc">Newest First</option>
+            <option value="date-asc">Oldest First</option>
+            <option value="score-desc">Highest Score</option>
+            <option value="score-asc">Lowest Score</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Applicants Section -->
+      <div class="dashboard-section">
+        <h2 class="dashboard-section-title">Applicants</h2>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading hidden">
+          <div class="spinner"></div>
+        </div>
+
+        <!-- Applicants List -->
+        <div id="applicantsList">
+          <!-- Applicant Card 1 - High Score, Interview Completed -->
+          <div class="applicant-card" onclick="window.location.href='applicant-detail.html'">
+            <div class="applicant-card-header">
+              <div>
+                <h3 class="applicant-card-name">Sarah Johnson</h3>
+                <p class="applicant-card-email">sarah.johnson@email.com</p>
+                <p class="text-small text-muted">Applied 1 day ago</p>
+              </div>
+              <span class="status-badge status-completed">Interview Completed</span>
+            </div>
+            <div class="applicant-card-scores">
+              <div class="applicant-score">
+                <span class="applicant-score-label">Resume Score</span>
+                <span class="applicant-score-value" style="color: #16a34a;">92</span>
+              </div>
+              <div class="applicant-score">
+                <span class="applicant-score-label">Interview Score</span>
+                <span class="applicant-score-value" style="color: #16a34a;">88</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="badge badge-primary">Python</span>
+              <span class="badge badge-primary">Go</span>
+              <span class="badge badge-primary">Kubernetes</span>
+              <span class="badge badge-primary">AWS</span>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-success btn-small" onclick="event.stopPropagation(); shortlistApplicant()">
+                Shortlist
+              </button>
+              <a href="applicant-detail.html" class="btn btn-primary btn-small" onclick="event.stopPropagation()">
+                View Details
+              </a>
+            </div>
+          </div>
+
+          <!-- Applicant Card 2 - Good Score, Interview Completed -->
+          <div class="applicant-card" onclick="window.location.href='applicant-detail.html'">
+            <div class="applicant-card-header">
+              <div>
+                <h3 class="applicant-card-name">Michael Chen</h3>
+                <p class="applicant-card-email">m.chen@email.com</p>
+                <p class="text-small text-muted">Applied 1 day ago</p>
+              </div>
+              <span class="status-badge status-completed">Interview Completed</span>
+            </div>
+            <div class="applicant-card-scores">
+              <div class="applicant-score">
+                <span class="applicant-score-label">Resume Score</span>
+                <span class="applicant-score-value" style="color: #16a34a;">85</span>
+              </div>
+              <div class="applicant-score">
+                <span class="applicant-score-label">Interview Score</span>
+                <span class="applicant-score-value" style="color: #16a34a;">82</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="badge badge-primary">Python</span>
+              <span class="badge badge-primary">Docker</span>
+              <span class="badge badge-primary">Kubernetes</span>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-success btn-small" onclick="event.stopPropagation(); shortlistApplicant()">
+                Shortlist
+              </button>
+              <a href="applicant-detail.html" class="btn btn-primary btn-small" onclick="event.stopPropagation()">
+                View Details
+              </a>
+            </div>
+          </div>
+
+          <!-- Applicant Card 3 - Interview Pending -->
+          <div class="applicant-card" onclick="window.location.href='applicant-detail.html'">
+            <div class="applicant-card-header">
+              <div>
+                <h3 class="applicant-card-name">Emily Rodriguez</h3>
+                <p class="applicant-card-email">emily.r@email.com</p>
+                <p class="text-small text-muted">Applied 2 days ago</p>
+              </div>
+              <span class="status-badge status-pending">Interview Pending</span>
+            </div>
+            <div class="applicant-card-scores">
+              <div class="applicant-score">
+                <span class="applicant-score-label">Resume Score</span>
+                <span class="applicant-score-value" style="color: #16a34a;">78</span>
+              </div>
+              <div class="applicant-score">
+                <span class="applicant-score-label">Interview Score</span>
+                <span class="applicant-score-value" style="color: #999;">--</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="badge badge-primary">Go</span>
+              <span class="badge badge-primary">AWS</span>
+              <span class="badge badge-primary">Terraform</span>
+            </div>
+            <div class="card-footer">
+              <a href="applicant-detail.html" class="btn btn-primary btn-small" onclick="event.stopPropagation()">
+                View Details
+              </a>
+            </div>
+          </div>
+
+          <!-- Applicant Card 4 - Resume Reviewed -->
+          <div class="applicant-card" onclick="window.location.href='applicant-detail.html'">
+            <div class="applicant-card-header">
+              <div>
+                <h3 class="applicant-card-name">David Kim</h3>
+                <p class="applicant-card-email">david.kim@email.com</p>
+                <p class="text-small text-muted">Applied 2 days ago</p>
+              </div>
+              <span class="status-badge status-reviewed">Resume Reviewed</span>
+            </div>
+            <div class="applicant-card-scores">
+              <div class="applicant-score">
+                <span class="applicant-score-label">Resume Score</span>
+                <span class="applicant-score-value" style="color: #d97706;">72</span>
+              </div>
+              <div class="applicant-score">
+                <span class="applicant-score-label">Interview Score</span>
+                <span class="applicant-score-value" style="color: #999;">--</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="badge badge-primary">Python</span>
+              <span class="badge badge-primary">Django</span>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); inviteToInterview()">
+                Invite to Interview
+              </button>
+              <a href="applicant-detail.html" class="btn btn-outline btn-small" onclick="event.stopPropagation()">
+                View Details
+              </a>
+            </div>
+          </div>
+
+          <!-- Applicant Card 5 - Shortlisted -->
+          <div class="applicant-card" onclick="window.location.href='applicant-detail.html'">
+            <div class="applicant-card-header">
+              <div>
+                <h3 class="applicant-card-name">Jessica Williams</h3>
+                <p class="applicant-card-email">j.williams@email.com</p>
+                <p class="text-small text-muted">Applied 3 days ago</p>
+              </div>
+              <span class="status-badge status-shortlisted">Shortlisted</span>
+            </div>
+            <div class="applicant-card-scores">
+              <div class="applicant-score">
+                <span class="applicant-score-label">Resume Score</span>
+                <span class="applicant-score-value" style="color: #16a34a;">95</span>
+              </div>
+              <div class="applicant-score">
+                <span class="applicant-score-label">Interview Score</span>
+                <span class="applicant-score-value" style="color: #16a34a;">91</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="badge badge-primary">Python</span>
+              <span class="badge badge-primary">Go</span>
+              <span class="badge badge-primary">Kubernetes</span>
+              <span class="badge badge-primary">Microservices</span>
+            </div>
+            <div class="card-footer">
+              <span class="text-small text-bold" style="color: #16a34a;">✓ Shortlisted for next round</span>
+              <a href="applicant-detail.html" class="btn btn-outline btn-small" onclick="event.stopPropagation()">
+                View Details
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-state-icon">👥</div>
+          <h3 class="empty-state-title">No Applicants Yet</h3>
+          <p class="empty-state-text">Applications will appear here once candidates start applying to this job.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p class="footer-text">&copy; 2024 AI Hiring Platform. All rights reserved.</p>
+      <ul class="footer-links">
+        <li><a href="privacy.html" class="footer-link">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- <script>
+    // Check authentication
+    const token = localStorage.getItem('companyToken');
+    if (!token) {
+      window.location.href = 'company-login.html';
+    }
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('companyToken');
+      localStorage.removeItem('userType');
+      window.location.href = 'landing.html';
+    }
+
+    // Load applicants
+    async function loadApplicants() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const jobId = urlParams.get('id');
+      
+      const loadingState = document.getElementById('loadingState');
+      const applicantsList = document.getElementById('applicantsList');
+      const emptyState = document.getElementById('emptyState');
+      
+      loadingState.classList.remove('hidden');
+      
+      try {
+        // TODO: Replace with actual backend endpoint
+        const response = await fetch(`/api/company/jobs/${jobId}/applicants`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        
+        const data = await response.json();
+        
+        loadingState.classList.add('hidden');
+        
+        if (data.applicants && data.applicants.length > 0) {
+          // TODO: Dynamically render applicants from data
+          applicantsList.classList.remove('hidden');
+          emptyState.classList.add('hidden');
+        } else {
+          applicantsList.classList.add('hidden');
+          emptyState.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Error loading applicants:', error);
+        loadingState.classList.add('hidden');
+        // Show static content on error
+      }
+    }
+
+    // Filter applicants
+    function filterApplicants() {
+      const filter = document.getElementById('statusFilter').value;
+      console.log('Filtering by:', filter);
+      // TODO: Implement filtering logic
+    }
+
+    // Sort applicants
+    function sortApplicants() {
+      const sort = document.getElementById('sortFilter').value;
+      console.log('Sorting by:', sort);
+      // TODO: Implement sorting logic
+    }
+
+    // Shortlist applicant
+    function shortlistApplicant() {
+      // TODO: Implement shortlist functionality
+      alert('Applicant shortlisted!');
+    }
+
+    // Invite to interview
+    function inviteToInterview() {
+      // TODO: Implement invite functionality
+      alert('Interview invitation sent!');
+    }
+
+    // Load applicants on page load
+    // loadApplicants(); // Uncomment when backend is ready
+  </script> -->
+</body>
+</html>
