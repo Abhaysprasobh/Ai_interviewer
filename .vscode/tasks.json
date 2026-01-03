@@ -23,8 +23,12 @@
     },
     {
       "label": "Start Full Stack",
-      "dependsOn": ["Backend", "Frontend"],
-      "dependsOrder": "parallel"
+      "dependsOn": [
+        "Backend",
+        "Frontend"
+      ],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
     }
   ]
 }
