@@ -16,6 +16,8 @@ import CompanyDashboard from './pages/CompanyDashboard';
 import JobsListing from './pages/JobsListing';
 import JobApply from './pages/JobApply';
 import JobDetail from './pages/JobDetail';
+import CreateJob from './pages/CreateJob';
+
 
 
 function App() {
@@ -71,6 +73,12 @@ function App() {
               <ProtectedRoute role="user"> 
                 <JobDetail />
                </ProtectedRoute>
+            </Route>
+
+             <Route path="/company/createjob">
+              <ProtectedRoute role="company"> 
+                <CreateJob />
+                </ProtectedRoute> 
             </Route>
 
 
