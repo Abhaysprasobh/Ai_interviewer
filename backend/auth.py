@@ -5,25 +5,23 @@ from db import db
 import logging
 
 auth_bp = Blueprint("auth", __name__)
-
 logger = logging.getLogger(__name__)
 
-@auth_bp.route("/signup", methods=["POST"])
-def signup():
-    data = request.json
+# ================= USER ROUTES =================
 
+@auth_bp.route("/signup", methods=["POST"])
+def signup():  # <--- Function name is 'signup'
+    data = request.json
     email = data.get("email")
     password = data.get("password")
     full_name = data.get("fullName")
     mobile = data.get("mobile")
 
     if not email or not password:
-        logger.warning(f"Signup attempt with missing fields")
         return jsonify({"error": "Missing fields"}), 400
 
     existing = db.users.find_one({"email": email})
     if existing:
-        print(f"Signup attempt with existing email: {email}")
         return jsonify({"error": "User already exists"}), 409
 
     db.users.insert_one({
@@ -34,12 +32,10 @@ def signup():
         "role": "user"
     })
 
-    print(f"User created successfully: {email}")
     return jsonify({"message": "User created successfully"}), 201
-
 
 @auth_bp.route("/login", methods=["POST"])
-def login():
+def login():   # <--- Function name is 'login'
     data = request.json
     email = data.get("email")
     password = data.get("password")
@@ -47,49 +43,45 @@ def login():
     user = db.users.find_one({"email": email})
 
     if not user or not check_password_hash(user["password"], password):
-        logger.warning(f"Failed login attempt for email: {email}")
         return jsonify({"error": "Invalid credentials"}), 401
 
-    print(f"User logged in successfully: {email}")
     token = create_access_token(identity={
         "id": str(user["_id"]),
         "role": user["role"]
     })
 
-    return jsonify({"token": token})
+    return jsonify({"token": token, "role": user["role"]})
+
+
+# ================= COMPANY ROUTES =================
 
 @auth_bp.route("/companySignup", methods=["POST"])
-def signup():
+def company_signup():  # <--- CHANGED FROM 'signup' TO 'company_signup'
     data = request.json
-
     email = data.get("email")
     password = data.get("password")
     full_name = data.get("fullName")
     mobile = data.get("mobile")
 
     if not email or not password:
-        logger.warning(f"Signup attempt with missing fields")
         return jsonify({"error": "Missing fields"}), 400
 
     existing = db.users.find_one({"email": email})
     if existing:
-        print(f"Signup attempt with existing email: {email}")
-        return jsonify({"error": "User already exists"}), 409
+        return jsonify({"error": "User/Company already exists"}), 409
 
     db.users.insert_one({
         "email": email,
         "password": generate_password_hash(password),
         "fullName": full_name,
         "mobile": mobile,
-        "role": "user"
+        "role": "company" 
     })
 
-    print(f"User created successfully: {email}")
-    return jsonify({"message": "User created successfully"}), 201
-
+    return jsonify({"message": "Company registered successfully"}), 201
 
 @auth_bp.route("/companyLogin", methods=["POST"])
-def login():
+def company_login():  # <--- CHANGED FROM 'login' TO 'company_login'
     data = request.json
     email = data.get("email")
     password = data.get("password")
@@ -97,13 +89,15 @@ def login():
     user = db.users.find_one({"email": email})
 
     if not user or not check_password_hash(user["password"], password):
-        logger.warning(f"Failed login attempt for email: {email}")
         return jsonify({"error": "Invalid credentials"}), 401
+    
+    # Optional: ensure this is actually a company account
+    if user.get("role") != "company":
+        return jsonify({"error": "Not a company account"}), 403
 
-    print(f"User logged in successfully: {email}")
     token = create_access_token(identity={
         "id": str(user["_id"]),
         "role": user["role"]
     })
 
-    return jsonify({"token": token})
+    return jsonify({"token": token, "role": user["role"]})
