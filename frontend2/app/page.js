@@ -11,7 +11,7 @@ export default function Home() {
   useEffect(() => {
     // Check for JWT token existence [cite: 63]
     const token = localStorage.getItem("token");
-    setIsAuthenticated(true);
+    setIsAuthenticated(!!token);
   }, []);
 
   if (!isAuthenticated) {
