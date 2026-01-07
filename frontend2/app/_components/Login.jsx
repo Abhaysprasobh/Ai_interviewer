@@ -158,7 +158,7 @@ export default function Login() {
             <div className="mt-8 text-center">
                 <p className="text-sm text-slate-500">
                     New here?{' '}
-                    <Link href="user/register" className="text-indigo-600 font-medium hover:underline transition-all">
+                    <Link href="/user/register" className="text-indigo-600 font-medium hover:underline transition-all">
                         Create an account
                     </Link>
                 </p>

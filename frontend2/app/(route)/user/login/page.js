@@ -1,9 +1,9 @@
 // src/app/page.js
 "use client";
 import { useEffect, useState } from "react";
-import Login from "./_components/Login";
-import InterviewBot from "./_components/InterviewBot";
-import ResumeParser from "./_components/ResumeParser";
+import Login from "../../../_components/Login";
+import InterviewBot from "../../../_components/InterviewBot";
+import ResumeParser from "../../../_components/ResumeParser";
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

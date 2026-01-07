@@ -60,21 +60,21 @@ def company_signup():  # <--- CHANGED FROM 'signup' TO 'company_signup'
     data = request.json
     email = data.get("email")
     password = data.get("password")
-    full_name = data.get("fullName")
-    mobile = data.get("mobile")
+    full_name = data.get("companyName")
+    mobile = data.get("contactNumber")
 
     if not email or not password:
         return jsonify({"error": "Missing fields"}), 400
 
-    existing = db.users.find_one({"email": email})
+    existing = db.company.find_one({"email": email})
     if existing:
         return jsonify({"error": "User/Company already exists"}), 409
 
-    db.users.insert_one({
+    db.company.insert_one({
         "email": email,
         "password": generate_password_hash(password),
-        "fullName": full_name,
-        "mobile": mobile,
+        "companyName": full_name,
+        "contactNumber": mobile,
         "role": "company" 
     })
 
@@ -86,7 +86,7 @@ def company_login():  # <--- CHANGED FROM 'login' TO 'company_login'
     email = data.get("email")
     password = data.get("password")
 
-    user = db.users.find_one({"email": email})
+    user = db.company.find_one({"email": email})
 
     if not user or not check_password_hash(user["password"], password):
         return jsonify({"error": "Invalid credentials"}), 401

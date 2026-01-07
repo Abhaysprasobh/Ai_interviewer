@@ -24,6 +24,10 @@ axiosClient.interceptors.request.use((config) => {
 const registerUser = (data) => axiosClient.post('/auth/signup', data);
 const loginUser = (data) => axiosClient.post('/auth/login', data);
 
+// --- Authentication  ---
+const registerCompany = (data) => axiosClient.post('/auth/companySignup', data);
+const loginCompany = (data) => axiosClient.post('/auth/companyLogin', data);
+
 // --- Interview [cite: 73, 114] ---
 const startInterview = (data) => axiosClient.post('/interview/start', data);
 const submitAnswer = (data) => axiosClient.post('/interview/answer', data);
@@ -45,6 +49,8 @@ const transcribeAudio = (formData) => axiosClient.post('/speech/transcribe', for
 });
 
 export default {
+    registerCompany,
+    loginCompany,
     loginUser,
     registerUser,
     transcribeAudio,
