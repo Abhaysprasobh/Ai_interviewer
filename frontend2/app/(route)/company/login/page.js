@@ -15,22 +15,8 @@ import {
 
 export default function CompanyLogin() {
 
-const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-
-const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-
 
  
 
