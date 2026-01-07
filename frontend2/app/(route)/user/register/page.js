@@ -1,6 +1,6 @@
 "use client";
 import { useState } from 'react';
-import GlobalApi from '../../_utils/GlobalApi'; // Adjust path as needed
+import GlobalApi from '../../../_utils/GlobalApi'; // Adjust path as needed
 import { useRouter } from 'next/navigation';
 import { 
   User, 
