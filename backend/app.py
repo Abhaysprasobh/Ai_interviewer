@@ -8,6 +8,7 @@ from interview import interview_bp
 from speech import speech_bp
 from resume import resume_bp
 
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = SECRET_KEY
 app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY

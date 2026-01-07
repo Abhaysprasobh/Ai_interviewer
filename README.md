@@ -8,6 +8,8 @@ Flask
 
 .venv\Scripts\activate
 
+python app.py
+
 pip install -r req.txt
 
 BASE URL
