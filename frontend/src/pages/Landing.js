@@ -14,10 +14,10 @@ const Landing = () => {
 
           {/* Main CTAs */}
           <div className="hero-cta">
-            <Link to="/user-login" className="btn btn-primary btn-large">
+            <Link to="/user/login" className="btn btn-primary btn-large">
               I'm a Job Seeker
             </Link>
-            <Link to="/company-login" className="btn btn-outline btn-large">
+            <Link to="/company/login" className="btn btn-outline btn-large">
               I'm a Company
             </Link>
           </div>

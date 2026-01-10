@@ -12,14 +12,19 @@ const UserLogin = () => {
         setError("");
 
         try {
-            const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+            const backendUrl =
+                process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
-            const res = await fetch(`${backendUrl}/api/auth/login`, {
+            const res = await fetch(`${backendUrl}/api/auth/user/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({
+                    email,
+                    password,
+                    role: "user"
+                })
             });
 
             if (!res.ok) {
@@ -34,7 +39,8 @@ const UserLogin = () => {
             setError(err.message);
             console.log("Error:", err);
         }
-    };
+    }
+
 
     return (
         <div className="userLogin">

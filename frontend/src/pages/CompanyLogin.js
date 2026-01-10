@@ -1,26 +1,47 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
 
 const CompanyLogin = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const history = useHistory();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const backendUrl =
+        process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+
+      const res = await fetch(`${backendUrl}/api/auth/company/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error("Invalid credentials");
+      }
+
+      const data = await res.json();
+      localStorage.setItem("token", data.token);
+
+      history.push("/company/dashboard");
+    } catch (err) {
+      setError(err.message);
+      console.log("Error:", err);
+    }
+  };
+
   return (
-    <>
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-content">
-          <Link to="/" className="navbar-brand">
-            AI Hiring
-          </Link>
-
-          <ul className="navbar-nav">
-            <li>
-              <Link to="/user-login" className="navbar-link">
-                Job Seeker Login
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
-      {/* Login Form */}
+    <div className="company-login">
       <section className="py-5">
         <div className="container-small">
           <div className="card">
@@ -29,13 +50,9 @@ const CompanyLogin = () => {
             </div>
 
             <div className="card-body">
-              {/* Error message container */}
-              <div
-                id="errorMessage"
-                className="alert alert-error hidden"
-              ></div>
+              {error && <p className="error">{error}</p>}
 
-              <form id="loginForm">
+              <form onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label htmlFor="email" className="form-label">
                     Company Email
@@ -43,9 +60,10 @@ const CompanyLogin = () => {
                   <input
                     type="email"
                     id="email"
-                    name="email"
                     className="form-input"
                     placeholder="company@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -57,17 +75,15 @@ const CompanyLogin = () => {
                   <input
                     type="password"
                     id="password"
-                    name="password"
                     className="form-input"
                     placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  className="btn btn-primary btn-block btn-large"
-                >
+                <button className="btn btn-primary btn-block btn-large">
                   Login
                 </button>
               </form>
@@ -76,30 +92,13 @@ const CompanyLogin = () => {
 
               <p className="text-center text-muted">
                 Don&apos;t have an account?{" "}
-                <Link to="/company-signup">Sign up here</Link>
+                <Link to="/company/signup">Sign up here</Link>
               </p>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-content">
-          <p className="footer-text">
-            &copy; 2024 AI Hiring Platform. All rights reserved.
-          </p>
-
-          <ul className="footer-links">
-            <li>
-              <Link to="/privacy" className="footer-link">
-                Privacy Policy
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </footer>
-    </>
+    </div>
   );
 };
 

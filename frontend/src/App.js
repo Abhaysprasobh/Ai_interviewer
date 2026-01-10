@@ -17,6 +17,7 @@ import JobsListing from './pages/JobsListing';
 import JobApply from './pages/JobApply';
 import JobDetail from './pages/JobDetail';
 import CreateJob from './pages/CreateJob';
+import CompanySignup from './pages/CompanySignup';
 
 
 
@@ -37,6 +38,9 @@ function App() {
             </Route>
             <Route exact path ="/company/login">
                 <CompanyLogin/>
+            </Route>
+            <Route exact path ="/company/signup">
+                <CompanySignup/>
             </Route>
             <Route exact path ="/user/login">
                 <UserLogin/>

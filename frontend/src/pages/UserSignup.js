@@ -24,32 +24,42 @@ const UserSignup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
+
         if (formData.password !== formData.confirmPassword) {
             setError("Passwords do not match");
             return;
         }
 
         try {
-            const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
-            const res = await fetch(`${backendUrl}/api/auth/signup`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    fullName: formData.fullName,
-                    email: formData.email,
-                    mobile: formData.mobile,
-                    password: formData.password
-                })
-            });
+            const backendUrl =
+                process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+
+            const res = await fetch(
+                `${backendUrl}/api/auth/user/signup`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        fullName: formData.fullName,
+                        email: formData.email,
+                        mobile: formData.mobile,
+                        password: formData.password,
+                    }),
+                }
+            );
+
+            const data = await res.json();
 
             if (!res.ok) {
-                setError("Signup failed");
+                setError(data.error || "Signup failed");
                 return;
             }
 
             history.push("/user/login");
         } catch (err) {
-            setError("An error occurred");
+            setError("Network error");
         }
     };
 

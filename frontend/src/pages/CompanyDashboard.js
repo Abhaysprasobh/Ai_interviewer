@@ -15,7 +15,7 @@ const CompanyDashboard = () => {
             </p>
           </div>
 
-          <Link to="/create-job" className="btn btn-primary btn-large">
+          <Link to="/company/createJob" className="btn btn-primary btn-large">
             + Create Job
           </Link>
         </div>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const UserDashboard = () => {
     return (
-        <>
+        <div id ="user-dashboard">
             {/* Dashboard */}
             <section className="dashboard">
                 <div className="container">
@@ -129,7 +129,7 @@ const UserDashboard = () => {
                     </div>
                 </div>
             </section>
-        </>
+        </div>
     );
 }
 
