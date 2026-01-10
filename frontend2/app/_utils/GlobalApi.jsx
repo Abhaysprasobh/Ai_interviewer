@@ -22,7 +22,7 @@ axiosClient.interceptors.request.use((config) => {
 
 // --- Authentication  ---
 const registerUser = (data) => axiosClient.post('/auth/signup', data);
-const loginUser = (data) => axiosClient.post('/auth/login', data);
+const loginUser = (data) => axiosClient.post('/auth/user/login', data);
 
 // --- Authentication  ---
 const registerCompany = (data) => axiosClient.post('/auth/companySignup', data);

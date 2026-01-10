@@ -111,7 +111,7 @@ export default function CompanyLogin() {
                   type="email"
                   required
                   placeholder="company@example.com"
-                  className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl
+                  className="block w-full pl-10 pr-3 py-3 text-slate-700 border border-slate-200 rounded-xl
                              focus:ring-2 focus:ring-indigo-500/20
                              focus:border-indigo-500 outline-none transition-all"
                 />
@@ -129,7 +129,7 @@ export default function CompanyLogin() {
                   type="password"
                   required
                   placeholder="••••••••"
-                  className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl
+                  className="block w-full pl-10 pr-3 py-3 border text-slate-700 border-slate-200 rounded-xl
                              focus:ring-2 focus:ring-indigo-500/20
                              focus:border-indigo-500 outline-none transition-all"
                 />

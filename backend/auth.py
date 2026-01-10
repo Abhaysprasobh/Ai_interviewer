@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from db import db
 import logging, json
 
-auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
+auth_bp = Blueprint("auth", __name__)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
