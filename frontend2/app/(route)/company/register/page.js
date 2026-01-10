@@ -1,188 +1,168 @@
 "use client";
+
 import { useState } from "react";
-import GlobalApi from "../../../_utils/GlobalApi";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
-  Building2,
   Mail,
   Lock,
+  Building2,
+  User,
   Phone,
-  Loader2,
-  ArrowRight,
-  AlertCircle,
+  Globe,
 } from "lucide-react";
-import Link from "next/link";
+import GlobalApi from "@/app/_utils/GlobalApi";
 
-export default function CompanyRegister() {
-  const [formData, setFormData] = useState({
-    companyName: "",
+export default function CompanySignupPage() {
+  const router = useRouter();
+
+  const [form, setForm] = useState({
     email: "",
     password: "",
+    companyName: "",
+    contactPerson: "",
     contactNumber: "",
+    website: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const router = useRouter();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      const resp = await GlobalApi.registerCompany(formData);
-
-      if (resp) {
-        router.push("/company/login");
-      }
+      await GlobalApi.registerCompany(form);
+      router.push("/company/login");
     } catch (err) {
-      setError(
-        err.response?.data?.error ||
-          "Company registration failed. Please try again."
-      );
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-[85vh] bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
-      {/* LEFT BRANDING */}
-      <div className="hidden md:flex md:w-1/2 bg-slate-900 p-12 text-white flex-col justify-between">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">AI Interviewer</h1>
-          <div className="h-1 w-12 bg-indigo-500 rounded-full"></div>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+      <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+        <h1 className="text-3xl font-extrabold text-slate-900 mb-2">
+          Company Signup
+        </h1>
+        <p className="text-slate-600 mb-6">
+          Create your company account
+        </p>
 
-        <div>
-          <h2 className="text-4xl font-extrabold mb-4">
-            Hire Smarter with <br />
-            <span className="text-indigo-400">AI Interviews</span>
-          </h2>
-          <p className="text-slate-400 text-lg">
-            Register your company and start screening candidates automatically.
-          </p>
-        </div>
-
-        <div className="text-xs text-slate-500">
-          © 2024 AI Interviewer System
-        </div>
-      </div>
-
-      {/* FORM */}
-      <div className="w-full md:w-1/2 p-12 flex items-center justify-center">
-        <div className="max-w-md w-full">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">Company Registration</h2>
-            <p className="text-slate-500">
-              Create your company account
-            </p>
+        {error && (
+          <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
+            {error}
           </div>
+        )}
 
-          {error && (
-            <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-100 flex gap-3 text-red-700">
-              <AlertCircle className="h-5 w-5" />
-              <p className="text-sm">{error}</p>
-            </div>
-          )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Company Name */}
+          <Input
+            icon={<Building2 size={18} />}
+            placeholder="Company Name"
+            name="companyName"
+            value={form.companyName}
+            onChange={handleChange}
+            required
+          />
 
-          <form onSubmit={handleRegister} className="space-y-5">
-            {/* Company Name */}
-            <div>
-              <label className="text-sm font-semibold">Company Name</label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
-                <input
-                  name="companyName"
-                  required
-                  onChange={handleInputChange}
-                  className="w-full pl-10 py-3 border rounded-xl"
-                  placeholder="Google Inc."
-                />
-              </div>
-            </div>
+          {/* Contact Person */}
+          <Input
+            icon={<User size={18} />}
+            placeholder="Contact Person"
+            name="contactPerson"
+            value={form.contactPerson}
+            onChange={handleChange}
+          />
 
-            {/* Email */}
-            <div>
-              <label className="text-sm font-semibold">Company Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  onChange={handleInputChange}
-                  className="w-full pl-10 py-3 border rounded-xl"
-                  placeholder="hr@company.com"
-                />
-              </div>
-            </div>
+          {/* Email */}
+          <Input
+            icon={<Mail size={18} />}
+            placeholder="Company Email"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
 
-            {/* Contact Number */}
-            <div>
-              <label className="text-sm font-semibold">Contact Number</label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
-                <input
-                  name="contactNumber"
-                  required
-                  onChange={handleInputChange}
-                  className="w-full pl-10 py-3 border rounded-xl"
-                  placeholder="+91 98765 43210"
-                />
-              </div>
-            </div>
+          {/* Phone */}
+          <Input
+            icon={<Phone size={18} />}
+            placeholder="Contact Number"
+            name="contactNumber"
+            value={form.contactNumber}
+            onChange={handleChange}
+          />
 
-            {/* Password */}
-            <div>
-              <label className="text-sm font-semibold">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  onChange={handleInputChange}
-                  className="w-full pl-10 py-3 border rounded-xl"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
+          {/* Website */}
+          <Input
+            icon={<Globe size={18} />}
+            placeholder="Website (optional)"
+            name="website"
+            value={form.website}
+            onChange={handleChange}
+          />
 
-            <button
-              disabled={loading}
-              className="w-full bg-slate-900 text-white py-3 rounded-xl flex justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="animate-spin" />
-                  Registering...
-                </>
-              ) : (
-                <>
-                  Register Company <ArrowRight />
-                </>
-              )}
-            </button>
-          </form>
+          {/* Password */}
+          <Input
+            icon={<Lock size={18} />}
+            placeholder="Password"
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
 
-          <p className="mt-6 text-center text-sm">
-            Already registered?{" "}
-            <Link
-              href="/company/login"
-              className="text-indigo-600 font-medium"
-            >
-              Login here
-            </Link>
-          </p>
-        </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-4 py-3 rounded-xl
+                       bg-indigo-600 text-white font-semibold
+                       hover:bg-indigo-500
+                       transition disabled:opacity-60"
+          >
+            {loading ? "Creating account..." : "Create Company Account"}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-slate-600">
+          Already have an account?{" "}
+          <Link
+            href="/company/login"
+            className="text-indigo-600 font-semibold hover:underline"
+          >
+            Login
+          </Link>
+        </p>
       </div>
+    </div>
+  );
+}
+
+/* ---------- Input Component ---------- */
+
+function Input({ icon, ...props }) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 focus-within:border-indigo-500 transition">
+      <span className="text-slate-400">{icon}</span>
+      <input
+        {...props}
+        className="w-full bg-transparent outline-none text-sm text-slate-800 placeholder-slate-400"
+      />
     </div>
   );
 }

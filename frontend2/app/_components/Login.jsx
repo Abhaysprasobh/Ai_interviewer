@@ -5,17 +5,20 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Loader2, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 
+
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const router = useRouter();
+    const router = useRouter();
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+      setError(null);
+      
 
     try {
       const resp = await GlobalApi.loginUser({ email, password });
@@ -25,7 +28,7 @@ export default function Login() {
       localStorage.setItem('userEmail', email); 
       window.location.reload(); 
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid credentials or server error");
+        setError(err.response?.data?.message || "Invalid credentials or server error");
     } finally {
       setLoading(false);
     }

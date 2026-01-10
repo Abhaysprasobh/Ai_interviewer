@@ -13,6 +13,8 @@ import {
   Building2,
 } from "lucide-react";
 
+
+
 export default function CompanyLogin() {
   const router = useRouter();
 
@@ -45,8 +47,9 @@ export default function CompanyLogin() {
       // 🔐 SAVE TOKEN
       localStorage.setItem("token", res.data.token);
 
-      // ➜ GO TO DASHBOARD
+      // ➜ GO TO DASHBOARD (delay for UX then navigate)
       await new Promise((r) => setTimeout(r, 1200));
+      router.push("/company/dashboard");
     } catch (err) {
 
       console.error(err);
@@ -58,8 +61,7 @@ export default function CompanyLogin() {
       } else {
         setError("Something went wrong. Please try again.");
       }
-      
-    
+
     } finally {
       setLoading(false);
     }
