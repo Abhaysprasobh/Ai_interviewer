@@ -21,12 +21,12 @@ axiosClient.interceptors.request.use((config) => {
 });
 
 // --- Authentication  ---
-const registerUser = (data) => axiosClient.post('/auth/signup', data);
-const loginUser = (data) => axiosClient.post('/auth/login', data);
+const registerUser = (data) => axiosClient.post('/auth/user/signup', data);
+const loginUser = (data) => axiosClient.post('/auth/user/login', data);
 
 // --- Authentication  ---
-const registerCompany = (data) => axiosClient.post('/auth/companySignup', data);
-const loginCompany = (data) => axiosClient.post('/auth/companyLogin', data);
+const registerCompany = (data) => axiosClient.post('/auth/company/signup', data);
+const loginCompany = (data) => axiosClient.post('/auth/company/login', data);
 
 // --- Interview [cite: 73, 114] ---
 const startInterview = (data) => axiosClient.post('/interview/start', data);

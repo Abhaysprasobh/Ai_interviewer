@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import GlobalApi from "@/app/_utils/GlobalApi";
@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 
 export default function CompanyLogin() {
+  const router = useRouter();
+
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -21,21 +23,47 @@ export default function CompanyLogin() {
  
 
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+
     try {
       // TODO: connect backend API here
+      const res = await GlobalApi.loginCompany({
+        email,
+        password,
+      });
+      console.log(res.data);
+
+      // 🔐 SAVE TOKEN
+      localStorage.setItem("token", res.data.token);
+
+      // ➜ GO TO DASHBOARD
       await new Promise((r) => setTimeout(r, 1200));
     } catch (err) {
-      setError("Invalid credentials. Please try again.");
+
+      console.error(err);
+
+      if (err.response && err.response.data?.error) {
+        setError(err.response.data.error);
+      } else if (err.request) {
+        setError("Server not responding. Please try again later.");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+      
+    
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div className="flex min-h-[85vh] bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
 
@@ -110,6 +138,9 @@ export default function CompanyLogin() {
                 <input
                   type="email"
                   required
+                  name="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="company@example.com"
                   className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl
                              focus:ring-2 focus:ring-indigo-500/20
@@ -127,8 +158,11 @@ export default function CompanyLogin() {
                 <Lock className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
                 <input
                   type="password"
+                  name="password"
                   required
                   placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl
                              focus:ring-2 focus:ring-indigo-500/20
                              focus:border-indigo-500 outline-none transition-all"
