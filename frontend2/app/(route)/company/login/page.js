@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import GlobalApi from "@/app/_utils/GlobalApi";
-
+import { useRouter } from "next/navigation"; // Added for better navigation
 
 import {
   Mail,
@@ -14,37 +14,39 @@ import {
 } from "lucide-react";
 
 export default function CompanyLogin() {
-
-const [formData, setFormData] = useState({
+  const router = useRouter();
+  
+  // 1. STATE
+  const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-
-const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-
-
- 
-
-
+  // 2. HANDLER
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // <--- CRITICAL: Prevents browser refresh
     setLoading(true);
     setError(null);
 
     try {
-      // TODO: connect backend API here
-      await new Promise((r) => setTimeout(r, 1200));
+      // Use formData here (not 'email' directly)
+      const resp = await GlobalApi.loginCompany(formData);
+      
+      // Store JWT token
+      if(resp.data.token) {
+          localStorage.setItem('token', resp.data.token);
+          localStorage.setItem('companyEmail', formData.email);
+          localStorage.setItem('userRole', 'company'); // Useful for middleware
+          
+          // Redirect to dashboard instead of reload
+          window.location.href = "/dashboard"; 
+      }
     } catch (err) {
-      setError("Invalid credentials. Please try again.");
+      console.error(err);
+      setError(err.response?.data?.error || "Invalid credentials or server error");
     } finally {
       setLoading(false);
     }
@@ -53,7 +55,7 @@ const handleLogin = async (e) => {
   return (
     <div className="flex min-h-[85vh] bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
 
-      {/* LEFT: Branding (same style as user auth) */}
+      {/* LEFT: Branding */}
       <div className="hidden md:flex md:w-1/2 bg-slate-900 relative flex-col justify-between p-12 text-white">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-[-20%] right-[-10%] w-96 h-96 bg-indigo-600 rounded-full blur-3xl opacity-20" />
@@ -79,7 +81,7 @@ const handleLogin = async (e) => {
         </div>
 
         <div className="relative z-10 text-xs text-slate-500">
-          © 2024 AI Interviewer System
+          © 2026 AI Interviewer System
         </div>
       </div>
 
@@ -114,7 +116,7 @@ const handleLogin = async (e) => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* Email */}
+            {/* Email Input */}
             <div className="space-y-1">
               <label className="text-sm font-semibold text-slate-700 ml-1">
                 Company Email
@@ -128,11 +130,15 @@ const handleLogin = async (e) => {
                   className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl
                              focus:ring-2 focus:ring-indigo-500/20
                              focus:border-indigo-500 outline-none transition-all"
+                  // --- FIX START ---
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  // --- FIX END ---
                 />
               </div>
             </div>
 
-            {/* Password */}
+            {/* Password Input */}
             <div className="space-y-1">
               <label className="text-sm font-semibold text-slate-700 ml-1">
                 Password
@@ -146,11 +152,15 @@ const handleLogin = async (e) => {
                   className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl
                              focus:ring-2 focus:ring-indigo-500/20
                              focus:border-indigo-500 outline-none transition-all"
+                  // --- FIX START ---
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  // --- FIX END ---
                 />
               </div>
             </div>
 
-            {/* Button */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
