@@ -1,8 +1,11 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token,get_jwt_identity, get_jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import db
+
 import logging, json
+
+from functools import wraps
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
@@ -12,6 +15,28 @@ logger = logging.getLogger(__name__)
 
 def log_request(label, data):
     logger.info("%s payload:\n%s", label, json.dumps(data, indent=2))
+
+
+
+
+def company_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        claims = get_jwt()
+        if claims.get("role") != "company":
+            return jsonify({"error": "Company access required"}), 403
+        return fn(*args, **kwargs)
+    return wrapper
+
+
+def user_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        claims = get_jwt()
+        if claims.get("role") != "user":
+            return jsonify({"error": "User access required"}), 403
+        return fn(*args, **kwargs)
+    return wrapper
 
 
 # ================= USER SIGNUP =================
@@ -65,10 +90,12 @@ def user_login():
     if not user or user.get("role") != "user" or not check_password_hash(user.get("password", ""), password):
         return jsonify({"error": "Invalid credentials"}), 401
 
-    token = create_access_token(identity={
-        "id": str(user["_id"]),
-        "role": "user"
-    })
+    token = create_access_token(
+        identity=str(user["_id"]),        
+        additional_claims={
+            "role": "user"
+        }
+    )
 
     return jsonify({"token": token}), 200
 
@@ -128,9 +155,11 @@ def company_login():
     if not company or company.get("role") != "company" or not check_password_hash(company.get("password", ""), password):
         return jsonify({"error": "Invalid credentials"}), 401
 
-    token = create_access_token(identity={
-        "id": str(company["_id"]),
-        "role": "company"
-    })
+    token = create_access_token(
+        identity=str(company["_id"]),       # ✅ STRING ONLY
+        additional_claims={
+            "role": "company"
+        }
+    )
 
     return jsonify({"token": token}), 200

@@ -10,7 +10,10 @@ try:
     )
 
     db = client.ai_interviewer
-
+    jobs_collection = db.jobs
+    applications_collection = db.applications
+    users_collection = db.users
+    companies_collection = db.companies
     # Test connection
     client.admin.command("ping")
     print("Successfully connected to MongoDB")

@@ -37,6 +37,7 @@ const parseResume = (formData) => axiosClient.post('/resume/parse', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
 });
 
+
 // --- Speech to Text (File Upload) [cite: 189] ---
 const recognizeSpeech = (formData) => axiosClient.post('/speech/recognize', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
@@ -48,14 +49,84 @@ const transcribeAudio = (formData) => axiosClient.post('/speech/transcribe', for
     }
 });
 
+
+
+/// wwwwwwwwwwwwwwwwwwwwwww
+// --- Jobs ---
+
+// Create Job (Company)
+const createJob = (data) => axiosClient.post('/jobs', data);
+
+// Get All Jobs (Public)
+const getAllJobs = () => axiosClient.get('/jobs');
+
+// Get Job by ID
+const getJobById = (jobId) => axiosClient.get(`/jobs/${jobId}`);
+
+// Get Logged-in Company Jobs
+const getCompanyJobs = () => axiosClient.get('/jobs/company/my-jobs');
+
+// Update Job
+const updateJob = (jobId, data) =>
+  axiosClient.put(`/jobs/${jobId}`, data);
+
+// Delete Job
+const deleteJob = (jobId) =>
+    axiosClient.delete(`/jobs/${jobId}`);
+
+
+// --- Applications ---
+
+// Apply to Job (User)
+const applyToJob = (formData) =>
+  axiosClient.post('/applications/apply', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+
+// Get Logged-in User Applications
+const getMyApplications = () =>
+  axiosClient.get('/applications/my-applications');
+
+// Get Applicants for a Job (Company)
+const getJobApplicants = (jobId) =>
+  axiosClient.get(`/applications/job/${jobId}`);
+
+// Update Application Status (Company)
+const updateApplicationStatus = (applicationId, status) =>
+  axiosClient.put(`/applications/${applicationId}/status`, { status });
+
+// Get Application Details
+const getApplicationDetails = (applicationId) =>
+  axiosClient.get(`/applications/${applicationId}`);
+
 export default {
-    registerCompany,
-    loginCompany,
-    loginUser,
-    registerUser,
-    transcribeAudio,
-    startInterview,
-    submitAnswer,
-    parseResume,
-    recognizeSpeech
+  // Auth
+  registerCompany,
+  loginCompany,
+  loginUser,
+  registerUser,
+
+  // Jobs
+  createJob,
+  getAllJobs,
+  getJobById,
+  getCompanyJobs,
+  updateJob,
+  deleteJob,
+
+  // Applications
+  applyToJob,
+  getMyApplications,
+  getJobApplicants,
+  updateApplicationStatus,
+  getApplicationDetails,
+
+  // Interview / AI
+  startInterview,
+  submitAnswer,
+
+  // Resume / Speech
+  parseResume,
+  recognizeSpeech,
+  transcribeAudio,
 };

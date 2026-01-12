@@ -13,15 +13,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={outfit.className}>
-        <div>
-          <Header />
-          <div className="md:px-20">
+      <body className={outfit.className} >
+        <Header />
+          <div>
             {children}
           </div>
-        </div>
-        {/* <Footer/> */}
-        </body>
+      </body>
     </html>
   );
 }
