@@ -62,7 +62,7 @@ def user_login():
 
     user = db.users.find_one({"email": email})
 
-    if not user or not check_password_hash(user["password"], password):
+    if not user or user.get("role") != "user" or not check_password_hash(user.get("password", ""), password):
         return jsonify({"error": "Invalid credentials"}), 401
 
     token = create_access_token(identity={
@@ -125,7 +125,7 @@ def company_login():
 
     company = db.company.find_one({"email": email})
 
-    if not company or not check_password_hash(company["password"], password):
+    if not company or company.get("role") != "company" or not check_password_hash(company.get("password", ""), password):
         return jsonify({"error": "Invalid credentials"}), 401
 
     token = create_access_token(identity={

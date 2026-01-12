@@ -1,5 +1,5 @@
 import { Link, useHistory } from "react-router-dom";
-
+import "../index.css";
 const CompanyDashboard = () => {
   const routerHistory = useHistory();
 
