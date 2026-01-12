@@ -18,7 +18,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 @jwt_required()
 @user_required
 def apply_job():
-    user = get_jwt_identity()
+    user_id = get_jwt_identity()
 
     job_id = request.form.get("jobId")
     resume = request.files.get("resume")
@@ -33,7 +33,7 @@ def apply_job():
 
     application = {
         "jobId": ObjectId(job_id),
-        "userId": ObjectId(user["id"]),
+        "userId": ObjectId(user_id),
         "resumeUrl": filepath,
         "coverLetter": cover_letter,
         "status": "submitted",
@@ -51,16 +51,17 @@ def apply_job():
 @jwt_required()
 @user_required
 def my_applications():
-    user = get_jwt_identity()
+    user_id = get_jwt_identity()
     apps = []
 
-    for app in applications_collection.find({"userId": ObjectId(user["id"])}):
+    for app in applications_collection.find({"userId": ObjectId(user_id)}):
         app["_id"] = str(app["_id"])
         app["jobId"] = str(app["jobId"])
         app["userId"] = str(app["userId"])
         apps.append(app)
 
     return jsonify(apps)
+
 
 
 # GET JOB APPLICANTS
