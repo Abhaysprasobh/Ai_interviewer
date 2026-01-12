@@ -1,20 +1,21 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from bson import ObjectId
+from datetime import datetime
+
 from db import jobs_collection
 from auth import company_required
-from datetime import datetime
 
 jobs_bp = Blueprint("jobs", __name__, url_prefix="/api/jobs")
 
 
-# CREATE JOB
+# ================= CREATE JOB =================
 @jobs_bp.route("", methods=["POST"])
 @jwt_required()
 @company_required
 def create_job():
-    data = request.json
     company_id = get_jwt_identity()
+    data = request.json
 
     job = {
         "companyId": ObjectId(company_id),
@@ -35,7 +36,7 @@ def create_job():
     return jsonify(job), 201
 
 
-# GET ALL JOBS (PUBLIC)
+# ================= PUBLIC JOB LIST =================
 @jobs_bp.route("", methods=["GET"])
 def get_all_jobs():
     jobs = []
@@ -43,68 +44,115 @@ def get_all_jobs():
         job["_id"] = str(job["_id"])
         job["companyId"] = str(job["companyId"])
         jobs.append(job)
-    return jsonify(jobs)
+
+    return jsonify(jobs), 200
 
 
-# GET JOB BY ID
+# ================= JOB DETAILS =================
 @jobs_bp.route("/<job_id>", methods=["GET"])
 def get_job(job_id):
-    job = jobs_collection.find_one({"_id": ObjectId(job_id)})
-    if not job:
+    pipeline = [
+        {"$match": {"_id": ObjectId(job_id)}},
+
+        {"$lookup": {
+            "from": "company",
+            "localField": "companyId",
+            "foreignField": "_id",
+            "as": "company"
+        }},
+        {"$unwind": "$company"},
+
+        {"$project": {
+            "_id": 1,
+            "title": 1,
+            "description": 1,
+            "skills": 1,
+            "experience": 1,
+            "salary": 1,
+            "location": 1,
+            "status": 1,
+            "createdAt": 1,
+            "companyId": {
+                "_id": "$company._id",
+                "companyName": "$company.companyName",
+                "website": "$company.website"
+            }
+        }}
+    ]
+
+    data = list(jobs_collection.aggregate(pipeline))
+    if not data:
         return jsonify({"error": "Job not found"}), 404
 
+    job = data[0]
     job["_id"] = str(job["_id"])
-    job["companyId"] = str(job["companyId"])
-    return jsonify(job)
+    job["companyId"]["_id"] = str(job["companyId"]["_id"])
+
+    return jsonify(job), 200
 
 
-# GET COMPANY JOBS
+# ================= COMPANY JOBS (WITH COUNTS) =================
 @jobs_bp.route("/company/my-jobs", methods=["GET"])
 @jwt_required()
 @company_required
 def my_jobs():
-    company_id = get_jwt_identity()
-    jobs = []
+    company_id = ObjectId(get_jwt_identity())
 
-    for job in jobs_collection.find({"companyId": ObjectId(company_id)}):
+    pipeline = [
+        {"$match": {"companyId": company_id}},
+        {"$lookup": {
+            "from": "applications",
+            "localField": "_id",
+            "foreignField": "jobId",
+            "as": "applications"
+        }},
+        {"$addFields": {
+            "applicationCount": {"$size": "$applications"}
+        }},
+        {"$project": {"applications": 0}}
+    ]
+
+    jobs = []
+    for job in jobs_collection.aggregate(pipeline):
         job["_id"] = str(job["_id"])
         job["companyId"] = str(job["companyId"])
         jobs.append(job)
 
-    return jsonify(jobs)
+    return jsonify(jobs), 200
 
 
-# UPDATE JOB
+# ================= UPDATE JOB =================
 @jobs_bp.route("/<job_id>", methods=["PUT"])
 @jwt_required()
 @company_required
 def update_job(job_id):
+    company_id = get_jwt_identity()
     data = request.json
-    company = get_jwt_identity()
 
     result = jobs_collection.update_one(
-        {"_id": ObjectId(job_id), "companyId": ObjectId(company["id"])},
+        {"_id": ObjectId(job_id), "companyId": ObjectId(company_id)},
         {"$set": data}
     )
 
     if result.matched_count == 0:
         return jsonify({"error": "Job not found or unauthorized"}), 404
 
-    return jsonify({"message": "Job updated"})
+    return jsonify({"message": "Job updated"}), 200
 
 
-# DELETE JOB
+# ================= DELETE JOB =================
 @jobs_bp.route("/<job_id>", methods=["DELETE"])
 @jwt_required()
 @company_required
 def delete_job(job_id):
-    company = get_jwt_identity()
+    company_id = get_jwt_identity()
+
     result = jobs_collection.delete_one({
         "_id": ObjectId(job_id),
-        "companyId": ObjectId(company["id"])
+        "companyId": ObjectId(company_id)
     })
 
     if result.deleted_count == 0:
         return jsonify({"error": "Job not found or unauthorized"}), 404
 
-    return jsonify({"message": "Job deleted"})
+    return jsonify({"message": "Job deleted"}), 200

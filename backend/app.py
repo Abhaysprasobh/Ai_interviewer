@@ -29,5 +29,11 @@ app.register_blueprint(applications_bp)
 def health():
     return {"status": "AI Interviewer Backend Running"}
 
+
+@app.route("/api/files/uploads/<path:filename>")
+def serve_resume(filename):
+    return send_from_directory("uploads", filename)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
