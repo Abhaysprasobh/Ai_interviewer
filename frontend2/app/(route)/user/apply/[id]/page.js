@@ -205,20 +205,23 @@ export default function JobApply() {
                 </div>
 
                 {/* Info Box */}
-                <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl">
-                    <div className="flex gap-3">
-                        <FileText className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                            <h4 className="font-semibold text-blue-900 mb-1">What happens next?</h4>
-                            <ul className="text-sm text-blue-800 space-y-1">
-                                <li>• Your resume will be analyzed by our AI system</li>
-                                <li>• You'll receive a compatibility score</li>
-                                <li>• If shortlisted, you'll be invited for an AI interview</li>
-                                <li>• The company will review your results</li>
-                            </ul>
-                        </div>
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl opacity-100 text-black">
+                <div className="flex gap-3">
+                    <FileText className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5 opacity-100 text-black" />
+                    <div>
+                    <h4 className="font-semibold text-blue-900 mb-1 opacity-100">
+                        What happens next?
+                    </h4>
+                    <ul className="text-sm text-blue-800 space-y-1 opacity-100 text-black">
+                        <li>• Your resume will be analyzed by our AI system</li>
+                        <li>• You'll receive a compatibility score</li>
+                        <li>• If shortlisted, you'll be invited for an AI interview</li>
+                        <li>• The company will review your results</li>
+                    </ul>
                     </div>
                 </div>
+                </div>
+
 
                 {/* Submit Button */}
                 <button

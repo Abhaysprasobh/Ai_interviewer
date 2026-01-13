@@ -1,90 +1,249 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
-import { User, Building2, ChevronDown } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import {
+  Menu,
+  X,
+  User,
+  Building2,
+  LogOut,
+  Briefcase,
+  LayoutDashboard,
+  Search,
+} from "lucide-react";
+import { isAuthenticated, getUserRole, logout } from "../_utils/auth";
 
 export default function Header() {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const isAuth = useMemo(() => isAuthenticated(), [pathname]);
+  const role = useMemo(() => getUserRole(), [pathname]);
 
-  useEffect(() => {
-    const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
+
+  const linkBase = "px-3 py-2 text-sm font-medium rounded-md transition-colors";
+
+  const linkInactive = "text-slate-700 hover:bg-slate-100";
+  const linkActive = "bg-slate-200 text-slate-900";
 
   return (
-    <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-lg border-b border-slate-200">
-      <div className="flex items-center justify-between h-16 px-6 md:px-20">
-        {/* Brand */}
-        <Link
-          href="/"
-          className="text-2xl font-extrabold tracking-tight text-slate-900"
-        >
-          AI<span className="text-indigo-600">Interviewer</span>
-        </Link>
+    <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="h-14 flex items-center justify-between">
+                <Link href="/" className="flex items-center gap-3">
+                <span className="font-extrabold text-2xl sm:text-3xl text-slate-900">
+                  AI<span className="text-indigo-600">Hiring</span>
+                </span>
+                </Link>
 
-        {/* Auth */}
-        <div className="relative" ref={ref}>
+                {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            {!isAuth ? (
+              <>
+                {/* <Link
+                  href="/jobs"
+                  className={`${linkBase} ${
+                    pathname === "/jobs" ? linkActive : linkInactive
+                  }`}
+                >
+                  Browse Jobs
+                </Link> */}
+                <Link
+                  href="/user/login"
+                  className={`${linkBase} ${linkInactive}`}
+                >
+                  Job Seekers
+                </Link>
+                <Link
+                  href="/company/login"
+                  className={`${linkBase} ${linkInactive}`}
+                >
+                  Companies
+                </Link>
+                {/* <Link
+                  href="/user/register"
+                  className="ml-2 px-4 py-2 text-sm border border-slate-300 rounded-md hover:bg-slate-100 transition text-black"
+                >
+                  Get Started
+                </Link> */}
+              </>
+            ) : (
+              <>
+                {role === "user" && (
+                  <>
+                    <Link
+                      href="/user/jobs"
+                      className={`${linkBase} ${
+                        pathname === "user/jobs" ? linkActive : linkInactive
+                      }`}
+                    >
+                      Browse Jobs
+                    </Link>
+                    <Link
+                      href="/user/dashboard"
+                      className={`${linkBase} ${
+                        pathname === "/user/dashboard"
+                          ? linkActive
+                          : linkInactive
+                      }`}
+                    >
+                      My Applications
+                    </Link>
+                    {/* <Link
+                      href="/user/profile"
+                      className={`${linkBase} ${
+                        pathname === "/user/profile" ? linkActive : linkInactive
+                      }`}
+                    >
+                      Profile
+                    </Link> */}
+                  </>
+                )}
+
+                {role === "company" && (
+                  <>
+                    <Link
+                      href="/company/dashboard"
+                      className={`${linkBase} ${
+                        pathname === "/company/dashboard"
+                          ? linkActive
+                          : linkInactive
+                      }`}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/company/jobs"
+                      className={`${linkBase} ${
+                        pathname.startsWith("/company/jobs")
+                          ? linkActive
+                          : linkInactive
+                      }`}
+                    >
+                      My Jobs
+                    </Link>
+                    <Link
+                      href="/company/jobs/create"
+                      className="ml-3 px-4 py-2 text-sm hover:bg-slate-100 transition text-black"
+                    >
+                      Post Job
+                    </Link>
+                  </>
+                )}
+
+                <button
+                  onClick={handleLogout}
+                  className="ml-3 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-md"
+                >
+                  Logout
+                </button>
+              </>
+            )}
+          </nav>
+
+          {/* Mobile Toggle */}
           <button
-            onClick={() => setOpen(!open)}
-            className="flex items-center gap-2 px-6 py-3 rounded-full
-                       bg-indigo-600 text-white text-sm font-semibold
-                       shadow-md hover:shadow-lg
-                       hover:bg-indigo-500
-                       transition-all duration-300"
+            className="md:hidden p-2 rounded-md hover:bg-slate-100"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            Login / Register
-            <ChevronDown
-              size={16}
-              className={`transition-transform duration-300 ${
-                open ? "rotate-180" : ""
-              }`}
-            />
+            {mobileMenuOpen ? <X /> : <Menu />}
           </button>
-
-          {/* Dropdown */}
-          {open && (
-            <div
-              className="absolute right-0 mt-4 w-56 rounded-2xl
-                         bg-white shadow-xl border border-slate-200
-                         px-2 py-2
-                         animate-in fade-in zoom-in-95"
-            >
-              <Link
-                href="/user/login"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3
-                           px-4 py-3 rounded-xl
-                           text-sm font-medium text-slate-700
-                           hover:bg-indigo-50 hover:text-indigo-600
-                           transition"
-              >
-                <User size={18} />
-                Job Seeker
-              </Link>
-
-              <Link
-                href="/company/login"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3
-                           px-4 py-3 mt-1 rounded-xl
-                           text-sm font-medium text-slate-700
-                           hover:bg-indigo-50 hover:text-indigo-600
-                           transition"
-              >
-                <Building2 size={18} />
-                Company
-              </Link>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-slate-200 bg-white">
+          <div className="px-4 py-3 flex flex-col gap-1">
+            {!isAuth ? (
+              <>
+                {/* <Link href="/jobs" className={`${linkBase} ${linkInactive}`}>
+                  Browse Jobs
+                </Link>
+                <Link
+                  href="/user/login"
+                  className={`${linkBase} ${linkInactive}`}
+                >
+                  Job Seeker Login
+                </Link>
+                <Link
+                  href="/company/login"
+                  className={`${linkBase} ${linkInactive}`}
+                >
+                  Company Login
+                </Link>
+                <Link
+                  href="/user/register"
+                  className="mt-2 px-4 py-2 border border-slate-300 rounded-md text-sm text-center hover:bg-slate-100"
+                >
+                  Get Started
+                </Link> */}
+              </>
+            ) : (
+              <>
+                {role === "user" && (
+                  <>
+                    <Link
+                      href="/jobs"
+                      className={`${linkBase} ${linkInactive}`}
+                    >
+                      Browse Jobs
+                    </Link>
+                    <Link
+                      href="/user/dashboard"
+                      className={`${linkBase} ${linkInactive}`}
+                    >
+                      My Applications
+                    </Link>
+                    <Link
+                      href="/user/profile"
+                      className={`${linkBase} ${linkInactive}`}
+                    >
+                      Profile
+                    </Link>
+                  </>
+                )}
+
+                {role === "company" && (
+                  <>
+                    {/* <Link
+                      href="/company/dashboard"
+                      className={`${linkBase} ${linkInactive}`}
+                    >
+                      Dashboard
+                    </Link> */}
+                    <Link
+                      href="/company/dashboard"
+                      className={`${linkBase} ${linkInactive}`}
+                    >
+                      My Jobs
+                    </Link>
+                    <Link
+                      href="/company/jobs/create"
+                      className={`${linkBase} ${linkInactive}`}
+                    >
+                      Post Job
+                    </Link>
+                  </>
+                )}
+
+                <button
+                  onClick={handleLogout}
+                  className="mt-2 px-3 py-2 text-sm text-left text-red-600 hover:bg-red-50 rounded-md"
+                >
+                  Logout
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }

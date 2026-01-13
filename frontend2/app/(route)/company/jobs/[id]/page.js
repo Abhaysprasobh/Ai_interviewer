@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import ApplicantCard from "@/app/_components/ApplicantCard";
 import { Loader2, Users, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import GlobalApi from "@/app/_utils/GlobalApi";
-import { isAuthenticated, isCompany } from  "@/app/_utils/auth";
+import { isAuthenticated, isCompany } from "@/app/_utils/auth";
+import ApplicantCard from "@/app/_components/ApplicantCard";
+
 
 export default function JobApplicants() {
     const params = useParams();

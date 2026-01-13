@@ -1,25 +1,18 @@
 // app/user/jobs/[id]/page.js
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useParams } from "next/navigation";
 import { MapPin, Building2, Clock, Briefcase, DollarSign, Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import GlobalApi from "@/app/_utils/GlobalApi";
 
 export default function JobDetail() {
     const params = useParams();
-    const router = useRouter();
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (params.id) {
-            fetchJobDetails();
-        }
-    }, [params.id]);
-
-    const fetchJobDetails = async () => {
+    const fetchJobDetails = useCallback(async () => {
         try {
             const resp = await GlobalApi.getJobById(params.id);
             setJob(resp.data);
@@ -28,7 +21,13 @@ export default function JobDetail() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [params.id]);
+
+    useEffect(() => {
+        if (params.id) {
+            fetchJobDetails();
+        }
+    }, [fetchJobDetails]);
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString("en-US", {
