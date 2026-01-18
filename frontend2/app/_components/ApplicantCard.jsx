@@ -3,6 +3,16 @@ import Link from "next/link";
 import { Mail, Phone, FileText, TrendingUp, Calendar } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 
+function ScoreBox({ label, value }) {
+  const display = value === null || value === undefined ? "N/A" : value;
+  return (
+    <div className="p-3 bg-slate-50 rounded-lg flex flex-col items-start">
+      <span className="text-xs text-slate-500">{label}</span>
+      <span className="text-lg font-semibold text-slate-900">{display}</span>
+    </div>
+  );
+}
+
 export default function ApplicantCard({ application }) {
   const user = application.user;
 

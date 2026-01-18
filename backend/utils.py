@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 logging.basicConfig(
     level=logging.INFO,
@@ -6,3 +7,9 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger("AI-INTERVIEWER")
+
+
+# util function get current time
+
+def currentTime():
+    return datetime.now()

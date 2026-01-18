@@ -11,11 +11,16 @@ export default function JobDetail() {
     const params = useParams();
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
+    const userApplication = job?.userApplication;
+    const hasApplied = Boolean(userApplication);
+    const applicationStatus = userApplication?.status;
 
     const fetchJobDetails = useCallback(async () => {
         try {
             const resp = await GlobalApi.getJobById(params.id);
             setJob(resp.data);
+
+
         } catch (err) {
             console.error("Failed to fetch job:", err);
         } finally {
@@ -120,13 +125,47 @@ export default function JobDetail() {
                     </div>
 
                     {/* Apply Button */}
-                    <Link
-                        href={`/user/apply/${job._id}`}
-                        className="px-8 py-4 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 group lg:self-start"
-                    >
-                        Apply Now
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </Link>
+                    {!hasApplied && (
+                        <Link
+                            href={`/user/apply/${job._id}`}
+                            className="px-8 py-4 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 group lg:self-start"
+                        >
+                            Apply Now
+                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    )}
+
+                    {hasApplied && (
+                        <div className="flex flex-col gap-3 lg:self-start">
+                            {/* Status badge */}
+                            <div className="px-6 py-3 rounded-xl bg-slate-100 text-slate-900 font-semibold text-center">
+                                Application Status:{" "}
+                                <span className="capitalize">
+                                    {applicationStatus ? applicationStatus.replace("_", " ") : "Submitted"}
+                                </span>
+                            </div>
+
+                            {/* Conditional CTA */}
+                            {applicationStatus === "interview_scheduled" && (
+                                <Link
+                                    href={`/user/interview/${userApplication._id}`}
+                                    className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all text-center"
+                                >
+                                    Join Interview
+                                </Link>
+                            )}
+
+                            {applicationStatus !== "interview_scheduled" && (
+                                <Link
+                                    href="/user/dashboard"
+                                    className="px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-all text-center"
+                                >
+                                    View Application
+                                </Link>
+                            )}
+                        </div>
+                    )}
+
                 </div>
             </div>
 
@@ -187,14 +226,23 @@ export default function JobDetail() {
 
             {/* Bottom Apply Button */}
             <div className="mt-8 text-center">
-                <Link
-                    href={`/user/apply/${job._id}`}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl font-bold transition-all group"
-                >
-                    Apply for this Position
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                {!hasApplied && (
+                    <Link
+                        href={`/user/apply/${job._id}`}
+                        className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl font-bold transition-all group"
+                    >
+                        Apply for this Position
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                )}
+
+                {hasApplied && (
+                    <div className="inline-flex items-center justify-center px-8 py-4 bg-slate-100 text-slate-700 rounded-xl font-semibold">
+                        You have already applied for this job
+                    </div>
+                )}
             </div>
+
         </div>
     );
 }

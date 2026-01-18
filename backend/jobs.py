@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import verify_jwt_in_request, get_jwt
 from bson import ObjectId
-from datetime import datetime
-
+from utils import currentTime
 from db import jobs_collection
 from auth import company_required
 
@@ -16,7 +16,6 @@ jobs_bp = Blueprint("jobs", __name__, url_prefix="/api/jobs")
 def create_job():
     company_id = get_jwt_identity()
     data = request.json
-
     job = {
         "companyId": ObjectId(company_id),
         "title": data["title"],
@@ -26,7 +25,7 @@ def create_job():
         "experience": data.get("experience"),
         "salary": data.get("salary"),
         "status": "active",
-        "createdAt": datetime.utcnow()
+        "createdAt": currentTime()
     }
 
     result = jobs_collection.insert_one(job)
@@ -36,24 +35,25 @@ def create_job():
     return jsonify(job), 201
 
 
-# ================= PUBLIC JOB LIST =================
+from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
+
 @jobs_bp.route("", methods=["GET"])
 def get_all_jobs():
-    jobs = []
-    for job in jobs_collection.find({"status": "active"}):
-        job["_id"] = str(job["_id"])
-        job["companyId"] = str(job["companyId"])
-        jobs.append(job)
+    user_id = None
 
-    return jsonify(jobs), 200
+    # ✅ Optional JWT (public + logged-in users)
+    try:
+        verify_jwt_in_request(optional=True)
+        user_id = get_jwt_identity()
+        if user_id:
+            user_id = ObjectId(user_id)
+    except:
+        pass
 
-
-# ================= JOB DETAILS =================
-@jobs_bp.route("/<job_id>", methods=["GET"])
-def get_job(job_id):
     pipeline = [
-        {"$match": {"_id": ObjectId(job_id)}},
+        {"$match": {"status": "active"}},
 
+        # Join company (basic info)
         {"$lookup": {
             "from": "company",
             "localField": "companyId",
@@ -61,6 +61,135 @@ def get_job(job_id):
             "as": "company"
         }},
         {"$unwind": "$company"},
+    ]
+
+    # 🔥 Add user application context IF logged in
+    if user_id:
+        pipeline.extend([
+            {"$lookup": {
+                "from": "applications",
+                "let": {"jobId": "$_id"},
+                "pipeline": [
+                    {
+                        "$match": {
+                            "$expr": {
+                                "$and": [
+                                    {"$eq": ["$jobId", "$$jobId"]},
+                                    {"$eq": ["$userId", user_id]}
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "as": "userApplication"
+            }},
+            {"$addFields": {
+                "userApplication": {"$arrayElemAt": ["$userApplication", 0]}
+            }}
+        ])
+    else:
+        pipeline.append({
+            "$addFields": {"userApplication": None}
+        })
+
+    # Final shape
+    pipeline.append({
+        "$project": {
+            "_id": 1,
+            "title": 1,
+            "location": 1,
+            "skills": 1,
+            "createdAt": 1,
+
+            "company": {
+                "_id": "$company._id",
+                "companyName": "$company.companyName"
+            },
+
+            # User-specific flags
+            "applied": {
+                "$cond": [
+                    {"$ifNull": ["$userApplication", False]},
+                    True,
+                    False
+                ]
+            },
+            "application": {
+                "_id": "$userApplication._id",
+                "status": "$userApplication.status",
+                "aiResumeScore": "$userApplication.aiResumeScore",
+                "aiInterviewScore": "$userApplication.aiInterviewScore"
+            }
+        }
+    })
+
+    data = list(jobs_collection.aggregate(pipeline))
+
+    jobs = []
+    for job in data:
+        job["_id"] = str(job["_id"])
+        job["company"]["_id"] = str(job["company"]["_id"])
+
+        if job["application"] and job["application"].get("_id"):
+            job["application"]["_id"] = str(job["application"]["_id"])
+        else:
+            job["application"] = None
+
+        jobs.append(job)
+
+    return jsonify(jobs), 200
+
+
+
+@jobs_bp.route("/<job_id>", methods=["GET"])
+def get_job(job_id):
+    user_id = None
+    role = None
+
+    # ✅ Optional JWT (public + logged-in users)
+    try:
+        verify_jwt_in_request(optional=True)
+        user_id = get_jwt_identity()
+        claims = get_jwt()
+        role = claims.get("role")
+    except:
+        pass
+
+    pipeline = [
+        {"$match": {"_id": ObjectId(job_id)}},
+
+        # Join company
+        {"$lookup": {
+            "from": "company",
+            "localField": "companyId",
+            "foreignField": "_id",
+            "as": "company"
+        }},
+        {"$unwind": "$company"},
+
+        # Join application ONLY for logged-in user
+        {"$lookup": {
+            "from": "applications",
+            "let": {"jobId": "$_id"},
+            "pipeline": [
+                {
+                    "$match": {
+                        "$expr": {
+                            "$and": [
+                                {"$eq": ["$jobId", "$$jobId"]},
+                                {"$eq": ["$userId", ObjectId(user_id)]} if user_id else {"$eq": [1, 0]}
+                            ]
+                        }
+                    }
+                }
+            ],
+            "as": "userApplication"
+        }},
+
+        # Flatten application array
+        {"$addFields": {
+            "userApplication": {"$arrayElemAt": ["$userApplication", 0]}
+        }},
 
         {"$project": {
             "_id": 1,
@@ -72,23 +201,42 @@ def get_job(job_id):
             "location": 1,
             "status": 1,
             "createdAt": 1,
-            "companyId": {
+
+            "company": {
                 "_id": "$company._id",
                 "companyName": "$company.companyName",
                 "website": "$company.website"
+            },
+
+            # 🔥 User-specific context
+            "userApplication": {
+                "_id": "$userApplication._id",
+                "status": "$userApplication.status",
+                "aiResumeScore": "$userApplication.aiResumeScore",
+                "aiInterviewScore": "$userApplication.aiInterviewScore",
+                "appliedAt": "$userApplication.appliedAt"
             }
         }}
     ]
 
     data = list(jobs_collection.aggregate(pipeline))
+
     if not data:
         return jsonify({"error": "Job not found"}), 404
 
     job = data[0]
+
+    # stringify IDs
     job["_id"] = str(job["_id"])
-    job["companyId"]["_id"] = str(job["companyId"]["_id"])
+    job["company"]["_id"] = str(job["company"]["_id"])
+
+    if job.get("userApplication") and job["userApplication"].get("_id"):
+        job["userApplication"]["_id"] = str(job["userApplication"]["_id"])
+    else:
+        job["userApplication"] = None
 
     return jsonify(job), 200
+
 
 
 # ================= COMPANY JOBS (WITH COUNTS) =================

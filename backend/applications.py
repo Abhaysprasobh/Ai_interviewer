@@ -4,9 +4,10 @@ from bson import ObjectId
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
-
-from db import applications_collection
+from utils import currentTime
+from db import applications_collection,jobs_collection
 from auth import user_required, company_required
+from datetime import timezone
 
 applications_bp = Blueprint("applications", __name__, url_prefix="/api/applications")
 
@@ -19,7 +20,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 @jwt_required()
 @user_required
 def apply_job():
-    user_id = get_jwt_identity()  # string
+    user_id = ObjectId(get_jwt_identity())
     job_id = request.form.get("jobId")
     resume = request.files.get("resume")
     cover_letter = request.form.get("coverLetter")
@@ -27,19 +28,46 @@ def apply_job():
     if not job_id or not resume:
         return jsonify({"error": "Job ID and resume required"}), 400
 
+    job = jobs_collection.find_one({"_id": ObjectId(job_id), "status": "active"})
+    if not job:
+        return jsonify({"error": "Job not found or inactive"}), 404
+
+    # 🔒 Prevent re-apply
+    existing = applications_collection.find_one({
+        "jobId": ObjectId(job_id),
+        "userId": user_id
+    })
+
+    if existing:
+        return jsonify({
+            "error": "Already applied",
+            "status": existing["status"]
+        }), 409
+
     filename = secure_filename(resume.filename)
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     resume.save(filepath)
 
+    now = currentTime()
+
     applications_collection.insert_one({
         "jobId": ObjectId(job_id),
-        "userId": ObjectId(user_id),
+        "companyId": job["companyId"],
+        "userId": user_id,
+
         "resumeUrl": filepath,
         "coverLetter": cover_letter,
+
         "status": "submitted",
+        "statusHistory": [
+            {"status": "submitted", "at": now}
+        ],
+
         "aiResumeScore": None,
         "aiInterviewScore": None,
-        "appliedAt": datetime.utcnow()
+
+        "appliedAt": now,
+        "updatedAt": now
     })
 
     return jsonify({"message": "Application submitted"}), 201
@@ -50,10 +78,10 @@ def apply_job():
 @jwt_required()
 @user_required
 def my_applications():
-    user_id = get_jwt_identity()
+    user_id = ObjectId(get_jwt_identity())
 
     pipeline = [
-        {"$match": {"userId": ObjectId(user_id)}},
+        {"$match": {"userId": user_id}},
 
         {"$lookup": {
             "from": "jobs",
@@ -63,24 +91,16 @@ def my_applications():
         }},
         {"$unwind": "$job"},
 
-        {"$lookup": {
-            "from": "company",
-            "localField": "job.companyId",
-            "foreignField": "_id",
-            "as": "company"
-        }},
-        {"$unwind": "$company"},
-
         {"$project": {
             "_id": 1,
             "status": 1,
             "appliedAt": 1,
             "aiResumeScore": 1,
             "aiInterviewScore": 1,
+
             "job": {
                 "_id": "$job._id",
-                "title": "$job.title",
-                "companyName": "$company.companyName"
+                "title": "$job.title"
             }
         }}
     ]
@@ -92,7 +112,6 @@ def my_applications():
         results.append(app)
 
     return jsonify(results), 200
-
 
 # ================= COMPANY: JOB APPLICANTS =================
 @applications_bp.route("/job/<job_id>", methods=["GET"])
