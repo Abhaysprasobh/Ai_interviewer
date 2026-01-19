@@ -38,18 +38,18 @@ export default function LandingPage() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/user/register"
+                href="/user/login"
                 className="group px-8 py-4 bg-white text-slate-900 rounded-xl font-bold text-lg hover:bg-slate-100 transition-all transform hover:-translate-y-1 hover:shadow-2xl flex items-center justify-center gap-2"
               >
-                I'm Looking for a Job
+                I&#39;m Looking for a Job
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
 
               <Link
-                href="/company/register"
+                href="/company/login"
                 className="px-8 py-4 bg-indigo-600 text-white rounded-xl font-bold text-lg hover:bg-indigo-500 transition-all transform hover:-translate-y-1 hover:shadow-2xl border-2 border-indigo-400"
               >
-                I'm Hiring Talent
+                I&#39;m Hiring Talent
               </Link>
             </div>
 

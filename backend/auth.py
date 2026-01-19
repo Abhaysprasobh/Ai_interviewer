@@ -3,7 +3,7 @@ from flask_jwt_extended import create_access_token,get_jwt_identity, get_jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import db
 from flask_jwt_extended import get_jwt_identity, get_jwt
-
+from datetime import timedelta
 import logging, json
 
 from functools import wraps
@@ -92,10 +92,9 @@ def user_login():
         return jsonify({"error": "Invalid credentials"}), 401
 
     token = create_access_token(
-        identity=str(user["_id"]),        
-        additional_claims={
-            "role": "user"
-        }
+        identity=str(user["_id"]),
+        additional_claims={"role": "user"},
+        expires_delta=timedelta(hours=1)
     )
 
     return jsonify({"token": token}), 200
@@ -157,10 +156,13 @@ def company_login():
         return jsonify({"error": "Invalid credentials"}), 401
 
     token = create_access_token(
-        identity=str(company["_id"]),       # ✅ STRING ONLY
+        identity=str(company["_id"]),       
         additional_claims={
             "role": "company"
-        }
+        },
+        expires_delta=timedelta(hours=1)
+
     )
+
 
     return jsonify({"token": token}), 200

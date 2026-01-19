@@ -99,6 +99,43 @@ const updateApplicationStatus = (applicationId, status) =>
 const getApplicationDetails = (applicationId) =>
   axiosClient.get(`/applications/${applicationId}`);
 
+  // Bulk update application statuses (company)
+const bulkUpdateApplicationStatus = (jobId, applicationIds, status) =>
+  axiosClient.put(`/applications/job/${jobId}/bulk/status`, {
+    applicationIds, 
+    status, 
+  });
+
+  // Fetch applicants for a job with filtering, search, sorting and pagination
+  const fetchJobApplicants = (jobId, options = {}) => {
+    const {
+      status,
+      search,
+      minResumeScore,
+      maxResumeScore,
+      minInterviewScore,
+      maxInterviewScore,
+      sort = 'appliedAt',
+      order = 'desc',
+      page = 1,
+      limit = 20,
+    } = options;
+
+    const params = {};
+    if (status) params.status = status;
+    if (search) params.search = search;
+    if (minResumeScore != null) params.minResumeScore = minResumeScore;
+    if (maxResumeScore != null) params.maxResumeScore = maxResumeScore;
+    if (minInterviewScore != null) params.minInterviewScore = minInterviewScore;
+    if (maxInterviewScore != null) params.maxInterviewScore = maxInterviewScore;
+    if (sort) params.sort = sort;
+    if (order) params.order = order;
+    if (page) params.page = page;
+    if (limit) params.limit = limit;
+
+    return axiosClient.get(`/applications/jobs/${jobId}`, { params });
+  };
+
 export default {
   // Auth
   registerCompany,
@@ -120,6 +157,7 @@ export default {
   getJobApplicants,
   updateApplicationStatus,
   getApplicationDetails,
+  bulkUpdateApplicationStatus,
 
   // Interview / AI
   startInterview,

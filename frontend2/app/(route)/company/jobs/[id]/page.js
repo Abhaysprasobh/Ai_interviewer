@@ -2,80 +2,143 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Loader2, Users, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Users } from "lucide-react";
 import Link from "next/link";
 import GlobalApi from "@/app/_utils/GlobalApi";
-import { isAuthenticated, isCompany } from "@/app/_utils/auth";
-import ApplicantCard from "@/app/_components/ApplicantCard";
 
+import { isAuthenticated, isCompany } from "@/app/_utils/auth";
+import ApplicantsTable from "@/app/_components/ApplicantTable";
 
 export default function JobApplicants() {
     const params = useParams();
     const router = useRouter();
+
     const [job, setJob] = useState(null);
     const [applicants, setApplicants] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [pendingStatus, setPendingStatus] = useState("");
+
+    // ATS controls
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
+    const [sortBy, setSortBy] = useState("appliedAt");
 
     useEffect(() => {
         if (!isAuthenticated() || !isCompany()) {
             router.push("/company/login");
             return;
         }
+        fetchData();
+    }, [params.id, search, statusFilter, sortBy]);
 
-        if (params.id) {
-            fetchJobAndApplicants();
-        }
-    }, [params.id]);
-
-    const fetchJobAndApplicants = async () => {
+    const fetchData = async () => {
+        setLoading(true);
         try {
             const [jobResp, applicantsResp] = await Promise.all([
                 GlobalApi.getJobById(params.id),
-                GlobalApi.getJobApplicants(params.id)
+                GlobalApi.getJobApplicants(params.id, {
+                    search,
+                    status: statusFilter,
+                    sort: sortBy,
+                }),
             ]);
             setJob(jobResp.data);
-            setApplicants(applicantsResp.data || []);
+            setApplicants(applicantsResp.data?.results || applicantsResp.data || []);
         } catch (err) {
-            console.error("Failed to fetch data:", err);
+            console.error(err);
         } finally {
             setLoading(false);
         }
     };
 
+    const toggleJobStatus = async () => {
+        const newStatus = job.status === "active" ? "closed" : "active";
+        await GlobalApi.updateJob(params.id, { status: newStatus });
+        setJob({ ...job, status: newStatus });
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="w-12 h-12 animate-spin text-indigo-600" />
+                <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
             </div>
         );
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <Link href="/company/dashboard" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-8">
+        <div className="max-w-7xl mx-auto px-4 py-10">
+            <Link
+                href="/company/dashboard"
+                className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6"
+            >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Dashboard
             </Link>
 
+            {/* Job Header */}
             {job && (
                 <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-slate-900 mb-2">{job.title}</h1>
-                    <p className="text-slate-600">{applicants.length} total applications</p>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold text-slate-900">{job.title}</h1>
+                            <p className="text-slate-600 mt-1">
+                                {applicants.length} applications
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={toggleJobStatus}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium ${job.status === "active"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-green-100 text-green-700"
+                                }`}
+                        >
+                            {job.status === "active" ? "Close Job" : "Reopen Job"}
+                        </button>
+                    </div>
                 </div>
             )}
+{/* 
+            <div className="flex flex-wrap gap-4 mb-6">
+                <input
+                    placeholder="Search name or email"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="px-4 py-2 border rounded-lg w-64"
+                />
 
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="px-4 py-2 border rounded-lg"
+                >
+                    <option value="">All statuses</option>
+                    <option value="submitted">Submitted</option>
+                    <option value="reviewed">Reviewed</option>
+                    <option value="shortlisted">Shortlisted</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="interview_scheduled">Interview Scheduled</option>
+                </select>
+
+                <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="px-4 py-2 border rounded-lg"
+                >
+                    <option value="appliedAt">Sort by Applied Date</option>
+                    <option value="aiResumeScore">Sort by Resume Score</option>
+                    <option value="aiInterviewScore">Sort by Interview Score</option>
+                </select>
+            </div> */}
+
+            {/* Table */}
             {applicants.length === 0 ? (
-                <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-                    <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">No Applications Yet</h3>
-                    <p className="text-slate-600">Check back later for new applicants</p>
+                <div className="bg-white border rounded-xl p-10 text-center">
+                    <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold">No applicants</h3>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {applicants.map((applicant) => (
-                        <ApplicantCard key={applicant._id} application={applicant} />
-                    ))}
-                </div>
+                <ApplicantsTable jobId={params.id} applicants={applicants} />
             )}
         </div>
     );

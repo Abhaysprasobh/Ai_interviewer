@@ -1,5 +1,5 @@
 import logging
-import datetime
+from datetime import datetime
 
 logging.basicConfig(
     level=logging.INFO,
