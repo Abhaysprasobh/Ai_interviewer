@@ -153,13 +153,13 @@ export default function InterviewBot({ resumeData }) {
           
           {/* Target Role Input (Always Visible) */}
           <div className="flex-1 w-full">
-             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+             <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                Target Job Role <span className="text-red-500">*</span>
              </label>
              <input 
                type="text" 
                placeholder="e.g. Full Stack Developer" 
-               className="w-full mt-1 p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+               className="w-full mt-1 p-2.5 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                value={role}
                onChange={(e) => setRole(e.target.value)}
              />
@@ -199,7 +199,7 @@ export default function InterviewBot({ resumeData }) {
              </div>
              <h3 className="text-lg font-semibold text-slate-800">Ready to Interview?</h3>
              <p className="text-sm mt-2 max-w-xs mx-auto">
-               Set your <strong>Target Role</strong> above and click Start. We'll use your resume to tailor the questions.
+               Set your <strong>Target Role</strong> above and click Start. We'll use your to tailor the questions.
              </p>
           </div>
         )}
