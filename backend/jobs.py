@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_jwt_extended import verify_jwt_in_request, get_jwt
 from bson import ObjectId
 from utils import currentTime
-from db import jobs_collection
+from db import jobs_collection, applications_collection
 from auth import company_required
 
 jobs_bp = Blueprint("jobs", __name__, url_prefix="/api/jobs")
@@ -146,7 +146,7 @@ def get_job(job_id):
     user_id = None
     role = None
 
-    # ✅ Optional JWT (public + logged-in users)
+    # Optional JWT (public + logged-in users)
     try:
         verify_jwt_in_request(optional=True)
         user_id = get_jwt_identity()
@@ -208,7 +208,7 @@ def get_job(job_id):
                 "website": "$company.website"
             },
 
-            # 🔥 User-specific context
+            # User-specific context
             "userApplication": {
                 "_id": "$userApplication._id",
                 "status": "$userApplication.status",
@@ -304,3 +304,5 @@ def delete_job(job_id):
         return jsonify({"error": "Job not found or unauthorized"}), 404
 
     return jsonify({"message": "Job deleted"}), 200
+
+

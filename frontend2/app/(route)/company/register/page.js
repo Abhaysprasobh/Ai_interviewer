@@ -50,7 +50,7 @@ export default function CompanyRegister() {
       <div className="flex w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
 
         {/* LEFT SIDE */}
-        <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-indigo-600 to-blue-600 relative flex-col justify-between p-12 text-white">
+        <div className="hidden md:flex md:w-1/2 bg-slate-900 relative flex-col justify-between p-12 text-white">
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
             <div className="absolute top-[-20%] right-[-10%] w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
             <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>

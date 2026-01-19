@@ -283,3 +283,182 @@ def get_application(app_id):
     app["job"]["_id"] = str(app["job"]["_id"])
 
     return jsonify(app), 200
+
+
+
+
+
+# ================= BULK APPLICATION STATUS UPDATE =================
+@applications_bp.route("/bulk/status", methods=["PUT"])
+@jwt_required()
+@company_required
+def bulk_update_application_status():
+    company_id = ObjectId(get_jwt_identity())
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    application_ids = data.get("applicationIds")
+    new_status = data.get("status")
+
+    allowed_statuses = [
+        "submitted",
+        "reviewed",
+        "shortlisted",
+        "rejected",
+        "interview_scheduled",
+        "interview_completed"
+    ]
+
+    if not application_ids or not isinstance(application_ids, list):
+        return jsonify({"error": "applicationIds must be a list"}), 400
+
+    if new_status not in allowed_statuses:
+        return jsonify({"error": "Invalid status"}), 400
+
+    object_ids = []
+    for app_id in application_ids:
+        try:
+            object_ids.append(ObjectId(app_id))
+        except:
+            return jsonify({"error": f"Invalid application id: {app_id}"}), 400
+    now = currentTime()
+    # Ensure company owns these applications
+    result = applications_collection.update_many(
+        {
+            "_id": {"$in": object_ids},
+            "companyId": company_id
+        },
+        {
+            "$set": {
+                "status": new_status,
+                "updatedAt": now
+            },
+            "$push": {
+                "statusHistory": {
+                    "status": new_status,
+                    "at": now
+                }
+            }
+        }
+    )
+
+    return jsonify({
+        "message": "Bulk status update completed",
+        "matched": result.matched_count,
+        "modified": result.modified_count
+    }), 200
+
+
+
+# ================= FILTER + SEARCH APPLICANTS FOR A JOB =================
+@applications_bp.route("/jobs/<job_id>", methods=["GET"])
+@jwt_required()
+@company_required
+def get_job_applicants(job_id):
+    company_id = ObjectId(get_jwt_identity())
+
+    try:
+        job_oid = ObjectId(job_id)
+    except:
+        return jsonify({"error": "Invalid jobId"}), 400
+
+    # ---------------- Query params ----------------
+    status = request.args.get("status")
+    search = request.args.get("search")
+
+    min_resume = request.args.get("minResumeScore", type=int)
+    max_resume = request.args.get("maxResumeScore", type=int)
+
+    min_interview = request.args.get("minInterviewScore", type=int)
+    max_interview = request.args.get("maxInterviewScore", type=int)
+
+    sort_by = request.args.get("sort", "appliedAt")  # appliedAt | aiResumeScore
+    order = -1 if request.args.get("order", "desc") == "desc" else 1
+
+    page = max(request.args.get("page", 1, type=int), 1)
+    limit = min(request.args.get("limit", 20, type=int), 50)
+    skip = (page - 1) * limit
+
+    # ---------------- Base match ----------------
+    match = {
+        "jobId": job_oid,
+        "companyId": company_id
+    }
+
+    if status:
+        match["status"] = status
+
+    if min_resume is not None or max_resume is not None:
+        match["aiResumeScore"] = {}
+        if min_resume is not None:
+            match["aiResumeScore"]["$gte"] = min_resume
+        if max_resume is not None:
+            match["aiResumeScore"]["$lte"] = max_resume
+
+    if min_interview is not None or max_interview is not None:
+        match["aiInterviewScore"] = {}
+        if min_interview is not None:
+            match["aiInterviewScore"]["$gte"] = min_interview
+        if max_interview is not None:
+            match["aiInterviewScore"]["$lte"] = max_interview
+
+    pipeline = [
+        {"$match": match},
+
+        # Join user
+        {"$lookup": {
+            "from": "users",
+            "localField": "userId",
+            "foreignField": "_id",
+            "as": "user"
+        }},
+        {"$unwind": "$user"}
+    ]
+
+    # ---------------- Search ----------------
+    if search:
+        pipeline.append({
+            "$match": {
+                "$or": [
+                    {"user.fullName": {"$regex": search, "$options": "i"}},
+                    {"user.email": {"$regex": search, "$options": "i"}}
+                ]
+            }
+        })
+
+    # ---------------- Sort + paginate ----------------
+    pipeline.extend([
+        {"$sort": {sort_by: order}},
+        {"$skip": skip},
+        {"$limit": limit},
+
+        {"$project": {
+            "_id": 1,
+            "status": 1,
+            "appliedAt": 1,
+            "aiResumeScore": 1,
+            "aiInterviewScore": 1,
+            "resumeUrl": 1,
+
+            "user": {
+                "_id": "$user._id",
+                "fullName": "$user.fullName",
+                "email": "$user.email",
+                "mobile": "$user.mobile"
+            }
+        }}
+    ])
+
+    results = []
+    for app in applications_collection.aggregate(pipeline):
+        app["_id"] = str(app["_id"])
+        app["user"]["_id"] = str(app["user"]["_id"])
+        results.append(app)
+
+    return jsonify({
+        "page": page,
+        "limit": limit,
+        "results": results
+    }), 200

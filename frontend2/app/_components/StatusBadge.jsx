@@ -1,4 +1,3 @@
-
 const statusConfig = {
   submitted: {
     label: "Submitted",
@@ -31,7 +30,16 @@ export default function StatusBadge({ status }) {
 
   return (
     <span
-      className={`px-3 py-1 rounded-full text-xs font-semibold border ${config.color}`}
+      className={`
+        inline-flex items-center justify-center
+        max-w-full
+        px-2 sm:px-3 py-1
+        text-xs font-semibold
+        rounded-lg border
+        text-center leading-tight
+        whitespace-normal break-words
+        ${config.color}
+      `}
     >
       {config.label}
     </span>
