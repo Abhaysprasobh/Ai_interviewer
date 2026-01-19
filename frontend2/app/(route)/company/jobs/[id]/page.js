@@ -98,38 +98,7 @@ export default function JobApplicants() {
                     </div>
                 </div>
             )}
-{/* 
-            <div className="flex flex-wrap gap-4 mb-6">
-                <input
-                    placeholder="Search name or email"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="px-4 py-2 border rounded-lg w-64"
-                />
 
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-4 py-2 border rounded-lg"
-                >
-                    <option value="">All statuses</option>
-                    <option value="submitted">Submitted</option>
-                    <option value="reviewed">Reviewed</option>
-                    <option value="shortlisted">Shortlisted</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="interview_scheduled">Interview Scheduled</option>
-                </select>
-
-                <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="px-4 py-2 border rounded-lg"
-                >
-                    <option value="appliedAt">Sort by Applied Date</option>
-                    <option value="aiResumeScore">Sort by Resume Score</option>
-                    <option value="aiInterviewScore">Sort by Interview Score</option>
-                </select>
-            </div> */}
 
             {/* Table */}
             {applicants.length === 0 ? (

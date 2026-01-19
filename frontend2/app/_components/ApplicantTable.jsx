@@ -2,7 +2,16 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Mail, Phone, FileText, Search, CheckSquare } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  FileText,
+  Search,
+  CheckSquare,
+  CheckCircle2,
+  XCircle,
+  Download,
+} from "lucide-react";
 import StatusBadge from "@/app/_components/StatusBadge";
 import GlobalApi from "@/app/_utils/GlobalApi";
 
@@ -15,6 +24,9 @@ const STATUS_OPTIONS = [
   "rejected",
 ];
 
+
+
+
 export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -22,6 +34,65 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
   const [selected, setSelected] = useState([]);
   const [bulkLoading, setBulkLoading] = useState(false);
   const [pendingStatus, setPendingStatus] = useState("");
+  const [feedback, setFeedback] = useState(null);
+
+  // Show feedback message
+  const showFeedback = (type, message) => {
+    setFeedback({ type, message });
+    setTimeout(() => setFeedback(null), 4000);
+  };
+
+  const viewResume = async (resumeUrl) => {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      `http://localhost:5000/api/applications/files/view/${encodeURIComponent(resumeUrl)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!res.ok) {
+      alert("Failed to load resume");
+      return;
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, "_blank");
+  };
+
+  const downloadResume = async (resumeUrl) => {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      `http://localhost:5000/api/applications/files/download/${encodeURIComponent(resumeUrl)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!res.ok) {
+      alert("Failed to download resume");
+      return;
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = resumeUrl.split("/").pop();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
 
 
   const filteredApplicants = useMemo(() => {
@@ -61,10 +132,16 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
     setBulkLoading(true);
     try {
       await GlobalApi.bulkUpdateApplicationStatus(jobId, selected, status);
+      showFeedback(
+        "success",
+        `Successfully updated ${selected.length} application(s)`,
+      );
       clearSelection();
+      setPendingStatus("");
       refresh?.();
     } catch (e) {
       console.error(e);
+      showFeedback("error", "Failed to update applications. Please try again.");
     } finally {
       setBulkLoading(false);
     }
@@ -79,35 +156,54 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
 
   return (
     <div className="bg-white border border-slate-300 rounded-2xl shadow-md">
+      {/* Feedback Toast */}
+      {feedback && (
+        <div
+          className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border-2 animate-in slide-in-from-top-5 ${
+            feedback.type === "success"
+              ? "bg-green-50 border-green-500 text-green-900"
+              : "bg-red-50 border-red-500 text-red-900"
+          }`}
+        >
+          {feedback.type === "success" ? (
+            <CheckCircle2 className="w-5 h-5 text-green-600" />
+          ) : (
+            <XCircle className="w-5 h-5 text-red-600" />
+          )}
+          <span className="font-semibold">{feedback.message}</span>
+        </div>
+      )}
+
       {/* ===== TOOLBAR ===== */}
-      <div className="p-4 bg-slate-100 border-b border-slate-300 rounded-t-2xl">
-        <div className="flex flex-wrap gap-3 items-center">
-          {/* Search */}
-          <div className="relative flex-1 min-w-[260px]">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search name, email or phone"
-              className="w-full pl-9 pr-3 py-2 text-sm
-                         bg-white border border-slate-400 rounded-lg
-                         focus:ring-2 focus:ring-indigo-600
-                         focus:border-indigo-600"
-            />
-          </div>
+        <div className="p-4 bg-slate-100 border-b border-slate-300 rounded-t-2xl">
+          <div className="flex flex-wrap gap-3 items-center">
+            {/* Search */}
+            <div className="relative flex-1 min-w-[260px]">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search name, email or phone"
+            className="w-full pl-10 pr-3 py-2 text-sm text-slate-900 placeholder:text-slate-500
+               bg-white border border-slate-400 rounded-lg
+               focus:ring-2 focus:ring-indigo-600
+               focus:border-indigo-600 focus:outline-none"
+          />
+            </div>
 
           {/* Status Filter */}
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 text-sm
+            className="px-3 py-2 text-sm text-slate-900
                        bg-white border border-slate-400 rounded-lg
-                       focus:ring-2 focus:ring-indigo-600"
+                       focus:ring-2 focus:ring-indigo-600 focus:outline-none
+                       cursor-pointer"
           >
             <option value="">All statuses</option>
             {STATUS_OPTIONS.map((s) => (
               <option key={s} value={s}>
-                {s.replace("_", " ")}
+                {s.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
               </option>
             ))}
           </select>
@@ -116,9 +212,10 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
           <select
             value={sortKey}
             onChange={(e) => setSortKey(e.target.value)}
-            className="px-3 py-2 text-sm
+            className="px-3 py-2 text-sm text-slate-900
                        bg-white border border-slate-400 rounded-lg
-                       focus:ring-2 focus:ring-indigo-600"
+                       focus:ring-2 focus:ring-indigo-600 focus:outline-none
+                       cursor-pointer"
           >
             <option value="appliedAt">Newest first</option>
             <option value="aiResumeScore">Resume score</option>
@@ -126,14 +223,13 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
           </select>
 
           {/* BULK BAR */}
-          {/* BULK BAR */}
           {selected.length > 0 && (
             <div
-              className="flex items-center gap-3 ml-auto
-                  bg-indigo-100 border border-indigo-400
-                  px-4 py-2 rounded-xl shadow-sm"
+              className="flex flex-wrap items-center gap-3 ml-auto
+                  bg-indigo-50 border-2 border-indigo-400
+                  px-4 py-2 rounded-xl shadow-md"
             >
-              <span className="text-sm font-medium text-indigo-900 flex items-center gap-1 text-black">
+              <span className="text-sm font-semibold text-indigo-900 flex items-center gap-2">
                 <CheckSquare className="w-4 h-4" />
                 {selected.length} selected
               </span>
@@ -141,15 +237,18 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
               <select
                 value={pendingStatus}
                 onChange={(e) => setPendingStatus(e.target.value)}
-                className="px-3 py-2 text-sm
-                 bg-white text-slate-900
+                className="px-3 py-1.5 text-sm text-slate-900
+                 bg-white
                  border-2 border-indigo-500 rounded-lg
-                 focus:ring-2 focus:ring-indigo-600 text-black"
+                 focus:ring-2 focus:ring-indigo-600 focus:outline-none
+                 cursor-pointer"
               >
                 <option value="">Select status</option>
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s} value={s}>
-                    {s.replace("_", " ")}
+                    {s
+                      .replace(/_/g, " ")
+                      .replace(/\b\w/g, (l) => l.toUpperCase())}
                   </option>
                 ))}
               </select>
@@ -158,15 +257,23 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                 disabled={!pendingStatus || bulkLoading}
                 onClick={() => bulkUpdateStatus(pendingStatus)}
                 className={`
-        px-4 py-2 rounded-lg text-sm font-semibold
+        px-4 py-1.5 rounded-lg text-sm font-semibold
+        transition-all duration-200
         ${
-          pendingStatus
-            ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+          pendingStatus && !bulkLoading
+            ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg"
             : "bg-slate-300 text-slate-600 cursor-not-allowed"
         }
       `}
               >
                 {bulkLoading ? "Updating…" : "Apply"}
+              </button>
+
+              <button
+                onClick={clearSelection}
+                className="text-sm text-indigo-700 hover:text-indigo-900 font-medium underline"
+              >
+                Clear
               </button>
             </div>
           )}
@@ -186,12 +293,13 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                     selected.length > 0 &&
                     selected.length === filteredApplicants.length
                   }
+                  className="w-4 h-4 cursor-pointer accent-indigo-600"
                 />
               </th>
               <th className="px-4 py-3 text-left">Candidate</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Scores</th>
-              <th className="px-4 py-3">Applied</th>
+              <th className="px-4 py-3 text-center">Status</th>
+              <th className="px-4 py-3 text-center">Scores</th>
+              <th className="px-4 py-3 text-center">Applied</th>
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
@@ -204,10 +312,10 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                 <tr
                   key={app._id}
                   className={`
-                    border-b border-slate-300
+                    border-b border-slate-200
                     ${idx % 2 === 0 ? "bg-white" : "bg-slate-50"}
-                    ${isSelected ? "bg-indigo-100" : ""}
-                    hover:bg-indigo-50
+                    ${isSelected ? "!bg-indigo-100 border-indigo-300" : ""}
+                    hover:bg-indigo-50 transition-colors
                   `}
                 >
                   <td className="px-4 py-3">
@@ -215,6 +323,7 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => toggleSelect(app._id)}
+                      className="w-4 h-4 cursor-pointer accent-indigo-600"
                     />
                   </td>
 
@@ -226,57 +335,79 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                     <div className="mt-1 text-xs text-slate-700 space-y-1">
                       {app.user?.email && (
                         <div className="flex items-center gap-1">
-                          <Mail className="w-3 h-3" />
-                          {app.user.email}
+                          <Mail className="w-3 h-3 text-slate-600" />
+                          <span>{app.user.email}</span>
                         </div>
                       )}
                       {app.user?.mobile && (
                         <div className="flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
-                          {app.user.mobile}
+                          <Phone className="w-3 h-3 text-slate-600" />
+                          <span>{app.user.mobile}</span>
                         </div>
                       )}
                     </div>
                   </td>
 
                   {/* Status */}
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-center">
                     <StatusBadge status={app.status} />
                   </td>
 
                   {/* Scores */}
-                  <td className="px-4 py-3 text-slate-800">
-                    <div>
-                      Resume: <b>{app.aiResumeScore ?? "—"}</b>
-                    </div>
-                    <div>
-                      Interview: <b>{app.aiInterviewScore ?? "—"}</b>
+                  <td className="px-4 py-3 text-slate-800 text-center">
+                    <div className="space-y-1">
+                      <div className="text-xs">
+                        Resume:{" "}
+                        <span className="font-semibold">
+                          {app.aiResumeScore ?? "—"}
+                        </span>
+                      </div>
+                      <div className="text-xs">
+                        Interview:{" "}
+                        <span className="font-semibold">
+                          {app.aiInterviewScore ?? "—"}
+                        </span>
+                      </div>
                     </div>
                   </td>
 
                   {/* Applied */}
-                  <td className="px-4 py-3 text-slate-700">
+                  <td className="px-4 py-3 text-slate-700 text-center">
                     {formatDate(app.appliedAt)}
                   </td>
-
                   {/* Actions */}
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2">
                       {app.resumeUrl && (
-                        <a
-                          href={`/api/files/${app.resumeUrl}`}
-                          target="_blank"
-                          className="p-2 border border-slate-400 rounded-lg
-                                     hover:bg-slate-200"
-                        >
-                          <FileText className="w-4 h-4" />
-                        </a>
+                        <>
+                          {/* VIEW Button */}
+                          <button
+                            onClick={() => viewResume(app.resumeUrl)}
+                            className="p-2 border border-slate-400 rounded-lg
+             hover:bg-slate-200 transition-colors
+             text-slate-700 hover:text-slate-900"
+                            title="View Resume"
+                          >
+                            <FileText className="w-4 h-4" />
+                          </button>
+
+                          {/* <button
+                            onClick={() => downloadResume(app.resumeUrl)}
+                            className="p-2 border border-slate-400 rounded-lg
+             hover:bg-slate-200 transition-colors
+             text-slate-700 hover:text-slate-900"
+                            title="Download Resume"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button> */}
+                        </>
                       )}
                       <Link
                         href={`/company/applicants/${app._id}`}
                         className="px-4 py-2 rounded-lg
-                                   bg-indigo-600 hover:bg-indigo-700
-                                   text-white font-semibold"
+                 bg-indigo-600 hover:bg-indigo-700
+                 text-white font-semibold
+                 transition-colors shadow-sm hover:shadow-md"
                       >
                         View
                       </Link>
@@ -292,7 +423,9 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                   colSpan="6"
                   className="px-6 py-16 text-center text-slate-600"
                 >
-                  No applicants match your filters
+                  {search || statusFilter
+                    ? "No applicants match your filters"
+                    : "No applicants yet"}
                 </td>
               </tr>
             )}

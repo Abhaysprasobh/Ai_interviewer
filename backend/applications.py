@@ -364,3 +364,66 @@ def bulk_update_application_status(job_id):
         "jobId": str(job_id),
         "updated": result.modified_count
     }), 200
+
+
+
+from flask import send_file
+import os
+# ================= VIEW RESUME (Display in Browser) =================
+@applications_bp.route("/files/view/<path:filepath>", methods=["GET"])
+@jwt_required()
+def view_file(filepath):
+    """Display PDF in browser"""
+    user_id = ObjectId(get_jwt_identity())
+    
+    app = applications_collection.find_one({"resumeUrl": filepath})
+    if not app:
+        return jsonify({"error": "File not found"}), 404
+    
+    if app["userId"] != user_id and app["companyId"] != user_id:
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    normalized_path = filepath.replace("\\", "/")
+    file_path = os.path.join(UPLOAD_FOLDER, os.path.basename(normalized_path))
+    
+    if not os.path.exists(file_path):
+        return jsonify({"error": "File not found on server"}), 404
+    
+    try:
+        return send_file(
+            file_path,
+            mimetype='application/pdf',  # ← This makes it display
+            as_attachment=False           # ← NOT a download
+        )
+    except Exception as e:
+        return jsonify({"error": f"Failed to send file: {str(e)}"}), 500
+
+
+# ================= DOWNLOAD RESUME (Force Download) =================
+@applications_bp.route("/files/download/<path:filepath>", methods=["GET"])
+@jwt_required()
+def download_file(filepath):
+    """Download PDF file"""
+    user_id = ObjectId(get_jwt_identity())
+    
+    app = applications_collection.find_one({"resumeUrl": filepath})
+    if not app:
+        return jsonify({"error": "File not found"}), 404
+    
+    if app["userId"] != user_id and app["companyId"] != user_id:
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    normalized_path = filepath.replace("\\", "/")
+    file_path = os.path.join(UPLOAD_FOLDER, os.path.basename(normalized_path))
+    
+    if not os.path.exists(file_path):
+        return jsonify({"error": "File not found on server"}), 404
+    
+    try:
+        return send_file(
+            file_path,
+            as_attachment=True,           # ← This forces download
+            download_name=os.path.basename(file_path)
+        )
+    except Exception as e:
+        return jsonify({"error": f"Failed to send file: {str(e)}"}), 500
