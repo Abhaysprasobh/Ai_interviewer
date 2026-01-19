@@ -64,3 +64,60 @@
   }
 }
 
+
+
+/* Status badge responsive text */
+@media (max-width: 768px) {
+  .status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Improve button touch targets on mobile */
+@media (max-width: 640px) {
+
+  button,
+  a.button {
+    min-height: 44px;
+    /* iOS recommended touch target */
+    min-width: 44px;
+  }
+}
+
+/* Table row hover effect */
+tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+/* Smooth color transitions */
+* {
+  transition-property: color, background-color, border-color;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+
+  /* Add dark mode styles if needed */
+  .dark-mode-enabled tbody tr:hover {
+    background-color: rgba(99, 102, 241, 0.1);
+  }
+}
