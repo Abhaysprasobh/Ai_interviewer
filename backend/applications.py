@@ -81,8 +81,10 @@ def my_applications():
     user_id = ObjectId(get_jwt_identity())
 
     pipeline = [
+        # 1️⃣ Match user applications
         {"$match": {"userId": user_id}},
 
+        # 2️⃣ Lookup Job
         {"$lookup": {
             "from": "jobs",
             "localField": "jobId",
@@ -91,6 +93,19 @@ def my_applications():
         }},
         {"$unwind": "$job"},
 
+        #  Lookup Company using job.companyId
+        {"$lookup": {
+            "from": "company",
+            "localField": "job.companyId",
+            "foreignField": "_id",
+            "as": "company"
+        }},
+        {"$unwind": {
+            "path": "$company",
+            "preserveNullAndEmptyArrays": True
+        }},
+
+        #  Final projection (IMPORTANT FIX)
         {"$project": {
             "_id": 1,
             "status": 1,
@@ -101,17 +116,30 @@ def my_applications():
             "job": {
                 "_id": "$job._id",
                 "title": "$job.title"
+            },
+
+            "company": {
+                "_id": "$company._id",
+                "name": "$company.name"
             }
         }}
     ]
 
+    #  Serialize ObjectIds
     results = []
     for app in applications_collection.aggregate(pipeline):
         app["_id"] = str(app["_id"])
         app["job"]["_id"] = str(app["job"]["_id"])
+
+        if app.get("company") and app["company"].get("_id"):
+            app["company"]["_id"] = str(app["company"]["_id"])
+        else:
+            app["company"] = None
+
         results.append(app)
 
     return jsonify(results), 200
+
 
 # ================= COMPANY: JOB APPLICANTS =================
 @applications_bp.route("/job/<job_id>", methods=["GET"])

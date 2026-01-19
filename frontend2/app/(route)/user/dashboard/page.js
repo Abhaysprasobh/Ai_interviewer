@@ -138,57 +138,65 @@ function StatCard({ label, value, icon, color }) {
     </div>
   );
 }
-
 function ApplicationCard({ application, formatDate }) {
-    const job = application.job || application.jobId;
-    const companyName = job?.companyName || job?.companyId?.companyName || "Company Name";
-    const title = job?.title || job?.name || "Job Title";
-    const jobId = job?._id || job?.id || application.jobId?._id;
+  const job = application.job;
+  const title = job?.title || "Job Title";
+  const jobId = job?._id;
 
-    return (
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-lg hover:border-indigo-200 transition-all">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h3 className="text-xl font-bold text-slate-900">
-                {title}
-              </h3>
-              <StatusBadge status={application.status} />
+  const companyName = application.company?.name;
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-lg hover:border-indigo-200 transition-all">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-2">
+            <h3 className="text-xl font-bold text-slate-900">
+              {title}
+            </h3>
+            <StatusBadge status={application.status} />
+          </div>
+
+          {/* ✅ COMPANY DISPLAY (FIXED) */}
+          <p className="text-slate-600 mb-3">
+            {companyName
+              ? companyName
+              : ""}
+          </p>
+
+          <div className="flex items-center gap-4 text-sm text-slate-500">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              <span>Applied: {formatDate(application.appliedAt)}</span>
             </div>
-            <p className="text-slate-600 mb-3">
-              {companyName}
-            </p>
-            <div className="flex items-center gap-4 text-sm text-slate-500">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span>Applied: {formatDate(application.appliedAt)}</span>
-              </div>
-              {application.aiResumeScore !== null && application.aiResumeScore !== undefined && (
+
+            {application.aiResumeScore !== null &&
+              application.aiResumeScore !== undefined && (
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4" />
                   <span>Resume Score: {application.aiResumeScore}/100</span>
                 </div>
               )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {application.status === "interview_scheduled" && (
-              <Link
-                href={`/user/interview/${application._id}`}
-                className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-medium"
-              >
-                Join Interview
-              </Link>
-            )}
-            <Link
-              href={`/user/jobs/${jobId}`}
-              className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors font-medium"
-            >
-              View Job
-            </Link>
           </div>
         </div>
+
+        <div className="flex items-center gap-3">
+          {application.status === "interview_scheduled" && (
+            <Link
+              href={`/user/interview/${application._id}`}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-medium"
+            >
+              Join Interview
+            </Link>
+          )}
+
+          <Link
+            href={`/user/jobs/${jobId}`}
+            className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors font-medium"
+          >
+            View Job
+          </Link>
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
