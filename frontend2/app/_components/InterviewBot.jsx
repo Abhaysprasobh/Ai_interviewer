@@ -128,7 +128,7 @@ export default function InterviewBot({ resumeData }) {
       setQuestion(nextQ);     
       setAnswer('');          
       setFeedback(null);      
-      playQuestionAudio(nextQ); // Play voice for next question
+      playQuestionAudio(nextQ); 
       setNextQ(null);         
     }
   };
@@ -189,10 +189,6 @@ export default function InterviewBot({ resumeData }) {
     }
   };
 
-  // ================= RENDER =================
-
-  // NEW: Render Dashboard if complete
-// NEW: Render Dashboard if complete
   if (isComplete && dashboardData) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden h-full flex flex-col p-8 overflow-y-auto">

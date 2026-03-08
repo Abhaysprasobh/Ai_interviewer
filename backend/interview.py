@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from db import db
 from llm import generate_question, evaluate_answer, generate_dashboard_summary
-from scoring import compute_qa_score # Import your custom scoring logic
+from scoring import compute_qa_score
 import uuid
 
 interview_bp = Blueprint("interview", __name__)
@@ -20,7 +20,6 @@ def start_interview():
     session_id = str(uuid.uuid4())
     context = {"role": role, "skills": skills, "experience": experience, "education": education}
     
-    # Generate the first question data (Question, Expected Answer, Keywords)
     q_data = generate_question(context, history=[])
 
     db.sessions.insert_one({
@@ -30,9 +29,9 @@ def start_interview():
         "skills": skills,
         "experience": experience, 
         "education": education,   
-        "questions_history": [], # Just strings of questions asked
-        "detailed_results": [],  # Full Q&A data for the dashboard
-        "current_question_data": q_data, # Store the current expected answer/keywords
+        "questions_history": [],
+        "detailed_results": [],  
+        "current_question_data": q_data,
         "current_question_count": 1, 
         "max_questions": MAX_QUESTIONS
     })
@@ -51,7 +50,6 @@ def answer_question():
     session_id = data["session_id"]
     answer = data["answer"]
 
-    # 1. Retrieve current session state
     session = db.sessions.find_one({"session_id": session_id})
     current_q_data = session.get("current_question_data")
     current_question = current_q_data["question"]

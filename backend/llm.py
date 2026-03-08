@@ -1,5 +1,3 @@
-
-import re
 import json
 from google import genai
 from google.genai import types 
@@ -53,80 +51,7 @@ def generate_question(context, history=None):
             "expected_answer": "Candidate should discuss their hands-on experience and projects.",
             "keywords": ["experience", "projects", "development"]
         }
-
-# Keep your existing evaluate_answer and generate_dashboard_summary functions here
-
-# def generate_question(context):
-#     """
-#     Generate an interview question based on candidate profile (Role + Skills + Exp).
-#     """
-#     # 1. Extract Data based on input type
-#     if isinstance(context, dict):
-#         # New Rich Context
-#         skills_list = context.get("skills", [])
-#         skills_str = ", ".join(skills_list) if isinstance(skills_list, list) else str(skills_list)
-        
-#         role = context.get("role", "Software Engineer")
-#         experience = context.get("experience", "Not specified")
-#         # We can optionally use education if needed, but usually Role + Skills + Exp is enough for tech questions
-#     else:
-#         # Fallback (Legacy list support)
-#         skills_str = ", ".join(context)
-#         role = "Software Engineer"
-#         experience = "Entry Level"
-
-#     try:
-#         response = client.models.generate_content(
-#             model="gemini-2.5-flash",
-#             contents=f"""
-#             You are an expert technical interviewer conducting an interview for the role of **{role}**.
-            
-#             Candidate Context:
-#             - Detected Skills: {skills_str}
-#             - Experience Level: {experience}
-
-#             Task:
-#             Ask exactly ONE technical interview question relevant to this role and experience level.
-#             - If the experience suggests a senior level, ask a system design or advanced concept question.
-#             - If entry level, focus on fundamentals.
-#             - Focus on the skills listed.
-            
-#             Output Rules:
-#             - Do not provide an answer. 
-#             - Do not add introductory text like "Here is a question".
-#             - Just output the question string.
-#             """
-#         )
-#         return response.text.strip()
-#     except Exception as e:
-#         print(f"Error generating question: {e}")
-#         return f"Tell me about your experience as a {role}."
-
-# def evaluate_answer(question, answer):
-#     """
-#     Evaluate an interview answer and return feedback
-#     """
-#     try:
-#         response = client.models.generate_content(
-#             model="gemini-2.5-flash",
-#             contents=f"""
-#             Question: {question}
-#             Candidate Answer: {answer}
-            
-#             Act as a strict technical interviewer.
-#             1. Evaluate if the answer is technically correct.
-#             2. Assign a score out of 10.
-#             3. Provide concise feedback on what was missing or how to improve.
-            
-#             Keep the total response under 3 sentences.
-#             """
-#         )
-#         return response.text.strip()
-#     except Exception as e:
-#         print(f"Error evaluating answer: {e}")
-#         return "Could not evaluate answer."
-import json
-
+    
 def evaluate_answer(question, answer):
     """
     Evaluate an answer and return structured JSON scores.
