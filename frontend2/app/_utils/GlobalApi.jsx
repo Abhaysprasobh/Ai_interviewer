@@ -4,7 +4,7 @@ import axios from "axios";
 const API_KEY = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
 const axiosClient = axios.create({
-  baseURL: 'http://127.0.0.1:5000/api', // Based on [cite: 7, 34]
+  baseURL: 'http://127.0.0.1:5000/api', 
   headers: {
     'Content-Type': 'application/json',
     ...(API_KEY && { Authorization: `Bearer ${API_KEY}` })
@@ -28,7 +28,7 @@ const loginUser = (data) => axiosClient.post('/auth/login', data);
 const registerCompany = (data) => axiosClient.post('/auth/companySignup', data);
 const loginCompany = (data) => axiosClient.post('/auth/companyLogin', data);
 
-// --- Interview [cite: 73, 114] ---
+// --- Interview ---
 const startInterview = (data) => axiosClient.post('/interview/start', data);
 const submitAnswer = (data) => axiosClient.post('/interview/answer', data);
 
@@ -37,7 +37,7 @@ const parseResume = (formData) => axiosClient.post('/resume/parse', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
 });
 
-// --- Speech to Text (File Upload) [cite: 189] ---
+// --- Speech to Text (File Upload) ---
 const recognizeSpeech = (formData) => axiosClient.post('/speech/recognize', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
 });
@@ -46,6 +46,11 @@ const transcribeAudio = (formData) => axiosClient.post('/speech/transcribe', for
     headers: {
         'Content-Type': 'multipart/form-data'
     }
+});
+
+// --- NEW: Text to Speech (Voice Output) ---
+const textToSpeech = (data) => axiosClient.post('/speech/tts', data, {
+    responseType: 'blob' // Crucial: Tells Axios to expect an audio file, not JSON
 });
 
 export default {
@@ -57,5 +62,6 @@ export default {
     startInterview,
     submitAnswer,
     parseResume,
-    recognizeSpeech
+    recognizeSpeech,
+    textToSpeech // Make sure to export the new function
 };

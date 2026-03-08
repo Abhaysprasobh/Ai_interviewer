@@ -106,7 +106,7 @@ export default function Register() {
                             name="fullName"
                             type="text" 
                             required
-                            className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                            className="block w-full text-slate-700 pl-10 pr-3 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                             placeholder="John Doe"
                             onChange={handleInputChange}
                         />
@@ -122,7 +122,7 @@ export default function Register() {
                             name="email"
                             type="email" 
                             required
-                            className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                            className="block w-full pl-10 pr-3 text-slate-700 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                             placeholder="student@example.com"
                             onChange={handleInputChange}
                         />
@@ -138,7 +138,7 @@ export default function Register() {
                             name="mobile"
                             type="tel" 
                             required
-                            className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                            className="block w-full pl-10 pr-3 text-slate-700 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                             placeholder="+91 98765 43210"
                             onChange={handleInputChange}
                         />
@@ -154,7 +154,7 @@ export default function Register() {
                             name="password"
                             type="password" 
                             required
-                            className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                            className="block w-full pl-10 text-slate-700 pr-3 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                             placeholder="••••••••"
                             onChange={handleInputChange}
                         />

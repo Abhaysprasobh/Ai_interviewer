@@ -79,7 +79,7 @@ export default function CompanyRegister() {
       <div className="w-full md:w-1/2 p-12 flex items-center justify-center">
         <div className="max-w-md w-full">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">Company Registration</h2>
+            <h2 className="text-3xl text-slate-900 font-bold mb-2">Company Registration</h2>
             <p className="text-slate-500">
               Create your company account
             </p>
@@ -95,14 +95,14 @@ export default function CompanyRegister() {
           <form onSubmit={handleRegister} className="space-y-5">
             {/* Company Name */}
             <div>
-              <label className="text-sm font-semibold">Company Name</label>
+              <label className="text-sm  text-slate-700 font-semibold">Company Name</label>
               <div className="relative">
                 <Building2 className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
                 <input
                   name="companyName"
                   required
                   onChange={handleInputChange}
-                  className="w-full pl-10 py-3 border rounded-xl"
+                  className="w-full text-slate-900 pl-10 py-3 border rounded-xl"
                   placeholder="Google Inc."
                 />
               </div>
@@ -110,7 +110,7 @@ export default function CompanyRegister() {
 
             {/* Email */}
             <div>
-              <label className="text-sm font-semibold">Company Email</label>
+              <label className="text-sm text-slate-700 font-semibold">Company Email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
                 <input
@@ -118,7 +118,7 @@ export default function CompanyRegister() {
                   type="email"
                   required
                   onChange={handleInputChange}
-                  className="w-full pl-10 py-3 border rounded-xl"
+                  className="w-full pl-10 text-slate-900 py-3 border rounded-xl"
                   placeholder="hr@company.com"
                 />
               </div>
@@ -126,14 +126,14 @@ export default function CompanyRegister() {
 
             {/* Contact Number */}
             <div>
-              <label className="text-sm font-semibold">Contact Number</label>
+              <label className="text-sm text-slate-700 font-semibold">Contact Number</label>
               <div className="relative">
                 <Phone className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
                 <input
                   name="contactNumber"
                   required
                   onChange={handleInputChange}
-                  className="w-full pl-10 py-3 border rounded-xl"
+                  className="w-full pl-10 py-3 text-slate-900 border rounded-xl"
                   placeholder="+91 98765 43210"
                 />
               </div>
@@ -141,7 +141,7 @@ export default function CompanyRegister() {
 
             {/* Password */}
             <div>
-              <label className="text-sm font-semibold">Password</label>
+              <label className="text-sm text-slate-700 font-semibold">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
                 <input
@@ -149,7 +149,7 @@ export default function CompanyRegister() {
                   type="password"
                   required
                   onChange={handleInputChange}
-                  className="w-full pl-10 py-3 border rounded-xl"
+                  className="w-full text-slate-900 pl-10 py-3 border rounded-xl"
                   placeholder="••••••••"
                 />
               </div>
