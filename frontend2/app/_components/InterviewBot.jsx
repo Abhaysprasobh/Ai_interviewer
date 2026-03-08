@@ -302,7 +302,7 @@ export default function InterviewBot({ resumeData }) {
       <div className="p-6 border-b border-slate-100 bg-slate-50">
         <div className="flex flex-col md:flex-row gap-4 items-end">
           <div className="flex-1 w-full">
-             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+             <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                Target Job Role <span className="text-red-500">*</span>
              </label>
              <input 
