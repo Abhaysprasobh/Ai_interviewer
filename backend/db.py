@@ -11,6 +11,7 @@ try:
 
     db = client.ai_interviewer
     jobs_collection = db.jobs
+    
     applications_collection = db.applications
     # reject at db level run once 
     applications_collection.create_index(

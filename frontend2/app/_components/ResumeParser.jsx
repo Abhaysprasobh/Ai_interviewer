@@ -1,10 +1,10 @@
 // src/components/ResumeParser.jsx
 "use client";
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import GlobalApi from '../_utils/GlobalApi';
 import { Upload, FileText, CheckCircle } from 'lucide-react';
 
-export default function ResumeParser() {
+export default function ResumeParser({ onResumeParsed }) {
   const [file, setFile] = useState(null);
   const [parsedData, setParsedData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -12,6 +12,12 @@ export default function ResumeParser() {
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
+
+  // useEffect(() => {
+  //   if (resumeData) {
+  //     setParsedData(resumeData);
+  //   }
+  // }, [resumeData]);
 
   const handleUpload = async () => {
     if (!file) return;
@@ -23,7 +29,11 @@ export default function ResumeParser() {
 
     try {
       const resp = await GlobalApi.parseResume(formData);
-      setParsedData(resp.data.parsed_resume);
+      if (onResumeParsed) {
+        // Send data to page.js to open the Interviewer
+        onResumeParsed(resp.data.parsed_resume || resp.data);
+      }
+      setParsedData(resp.data.parsed_resume || resp.data);
     } catch (error) {
       alert("Failed to parse resume");
     } finally {

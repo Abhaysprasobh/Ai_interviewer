@@ -17,8 +17,8 @@ call venv\Scripts\activate.bat
 
 REM install only if NOT already done
 if not exist venv\.installed (
-    if exist requirements.txt (
-        pip install -r requirements.txt
+    if exist req.txt (
+        pip install -r req.txt
         echo done > venv\.installed
     )
 )

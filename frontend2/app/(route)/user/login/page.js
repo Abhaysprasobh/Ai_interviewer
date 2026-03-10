@@ -30,6 +30,7 @@ export default function UserLogin() {
 
       // Redirect to dashboard
       router.push("/user/dashboard");
+      router.refresh();
     } catch (err) {
       setError(err.response?.data?.error || "Invalid credentials or server error");
     } finally {

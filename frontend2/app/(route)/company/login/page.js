@@ -28,6 +28,7 @@ export default function CompanyLogin() {
       setUserEmail(email);
 
       router.push("/company/dashboard");
+      router.refresh();
     } catch (err) {
       setError(err.response?.data?.error || "Invalid credentials or server error");
     } finally {
