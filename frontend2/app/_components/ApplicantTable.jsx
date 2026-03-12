@@ -18,12 +18,12 @@ import StatusBadge from "@/app/_components/StatusBadge";
 import GlobalApi from "@/app/_utils/GlobalApi";
 
 const STATUS_OPTIONS = [
-  "submitted",
-  "reviewed",
-  "shortlisted",
+  // "submitted",
+  // "reviewed",
   "interview_scheduled",
   "interview_completed",
   "rejected",
+  "shortlisted",
 ];
 
 export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
@@ -313,27 +313,37 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                         <div className="text-xs">
                           Resume:{" "}
                           <span className="font-semibold">
-                            {app.aiResumeScore ?? "—"}
+                            {app.aiResumeScore !== null &&
+                            app.aiResumeScore !== undefined
+                              ? `${app.aiResumeScore}%`
+                              : "—"}
                           </span>
                         </div>
-                        
+
                         {/* Interview Score & Dropdown Button */}
                         <div className="text-xs flex items-center justify-center gap-1">
                           Interview:{" "}
                           <span className="font-semibold text-indigo-700">
-                            {app.aiInterviewScore !== null && app.aiInterviewScore !== undefined ? `${app.aiInterviewScore}%` : "—"}
+                            {app.aiInterviewScore !== null &&
+                            app.aiInterviewScore !== undefined
+                              ? `${app.aiInterviewScore}%`
+                              : "—"}
                           </span>
-                          
                           {/* Only show the expand icon if they have actually completed the interview */}
-                          {app.aiInterviewScore !== null && app.aiInterviewScore !== undefined && (
-                            <button
-                              onClick={() => toggleExpand(app._id)}
-                              className="p-1 hover:bg-indigo-200 rounded text-indigo-600 transition-colors ml-1"
-                              title="View Interview Dashboard"
-                            >
-                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <BarChart className="w-4 h-4" />}
-                            </button>
-                          )}
+                          {app.aiInterviewScore !== null &&
+                            app.aiInterviewScore !== undefined && (
+                              <button
+                                onClick={() => toggleExpand(app._id)}
+                                className="p-1 hover:bg-indigo-200 rounded text-indigo-600 transition-colors ml-1"
+                                title="View Interview Dashboard"
+                              >
+                                {isExpanded ? (
+                                  <ChevronUp className="w-4 h-4" />
+                                ) : (
+                                  <BarChart className="w-4 h-4" />
+                                )}
+                              </button>
+                            )}
                         </div>
 
                         {/* Quick Proctoring Flag Badge */}
@@ -349,7 +359,7 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                     <td className="px-4 py-3 text-slate-700 text-center">
                       {formatDate(app.appliedAt)}
                     </td>
-                    
+
                     {/* Actions */}
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
@@ -375,17 +385,23 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                   {/* EXPANDED DASHBOARD ROW */}
                   {isExpanded && app.interviewDetails && (
                     <tr>
-                      <td colSpan="6" className="p-0 border-b border-slate-200 bg-slate-50">
+                      <td
+                        colSpan="6"
+                        className="p-0 border-b border-slate-200 bg-slate-50"
+                      >
                         <div className="p-6 border-t border-indigo-100 shadow-inner">
                           <div className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                            
                             {/* Proctoring Alert */}
                             {app.proctoring_flag && (
                               <div className="bg-red-50 border border-red-200 p-4 rounded-lg mb-6 flex items-start gap-3">
                                 <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
                                 <div>
-                                  <h4 className="font-bold text-red-800">Proctoring Violation Logged</h4>
-                                  <p className="text-red-700 text-sm mt-1">{app.proctoring_reason}</p>
+                                  <h4 className="font-bold text-red-800">
+                                    Proctoring Violation Logged
+                                  </h4>
+                                  <p className="text-red-700 text-sm mt-1">
+                                    {app.proctoring_reason}
+                                  </p>
                                 </div>
                               </div>
                             )}
@@ -400,31 +416,47 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                             </p>
 
                             {/* Detailed Q&A Transcript */}
-                            <h4 className="font-bold text-slate-800 mb-4 border-b pb-2">Detailed Q&A Transcript</h4>
+                            <h4 className="font-bold text-slate-800 mb-4 border-b pb-2">
+                              Detailed Q&A Transcript
+                            </h4>
                             <div className="space-y-4">
                               {app.interviewDetails.map((detail, index) => (
-                                <div key={index} className="bg-slate-50 border border-slate-100 p-4 rounded-lg">
+                                <div
+                                  key={index}
+                                  className="bg-slate-50 border border-slate-100 p-4 rounded-lg"
+                                >
                                   <p className="font-bold text-slate-800 text-sm mb-2">
-                                    <span className="text-indigo-600 mr-2">Q{index + 1}:</span> 
+                                    <span className="text-indigo-600 mr-2">
+                                      Q{index + 1}:
+                                    </span>
                                     {detail.question}
                                   </p>
-                                  
+
                                   <div className="text-sm text-slate-600 mb-3 pl-4 border-l-2 border-indigo-200 whitespace-pre-wrap">
-                                    {detail.answer || <span className="italic text-slate-400">No audio transcribed.</span>}
+                                    {detail.answer || (
+                                      <span className="italic text-slate-400">
+                                        No audio transcribed.
+                                      </span>
+                                    )}
                                   </div>
-                                  
+
                                   <div className="flex gap-6 mt-2 border-t border-slate-200 pt-3">
                                     <span className="text-xs font-semibold text-slate-500">
-                                      Tech Score: <span className="text-indigo-600 ml-1">{detail.final_technical_score}/10</span>
+                                      Tech Score:{" "}
+                                      <span className="text-indigo-600 ml-1">
+                                        {detail.final_technical_score}/10
+                                      </span>
                                     </span>
                                     <span className="text-xs font-semibold text-slate-500">
-                                      Comm Score: <span className="text-indigo-600 ml-1">{detail.communication_score}/10</span>
+                                      Comm Score:{" "}
+                                      <span className="text-indigo-600 ml-1">
+                                        {detail.communication_score}/10
+                                      </span>
                                     </span>
                                   </div>
                                 </div>
                               ))}
                             </div>
-
                           </div>
                         </div>
                       </td>
