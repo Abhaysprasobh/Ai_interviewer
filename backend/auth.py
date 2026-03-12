@@ -94,7 +94,7 @@ def user_login():
     token = create_access_token(
         identity=str(user["_id"]),
         additional_claims={"role": "user"},
-        expires_delta=timedelta(hours=1)
+        expires_delta=timedelta(hours=100)
     )
 
     return jsonify({"token": token}), 200
@@ -160,7 +160,7 @@ def company_login():
         additional_claims={
             "role": "company"
         },
-        expires_delta=timedelta(hours=1)
+        expires_delta=timedelta(hours=100)
 
     )
 

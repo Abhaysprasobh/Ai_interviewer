@@ -80,7 +80,7 @@ export default function Header() {
                     <Link
                       href="/user/jobs"
                       className={`${linkBase} ${
-                        pathname === "user/jobs" ? linkActive : linkInactive
+                        pathname === "/user/jobs" ? linkActive : linkInactive
                       }`}
                     >
                       Browse Jobs
