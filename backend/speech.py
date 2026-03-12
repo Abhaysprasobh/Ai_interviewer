@@ -3,7 +3,7 @@ import whisper
 from pydub.effects import normalize
 import os
 import io
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 import speech_recognition as sr
 
 speech_bp = Blueprint("speech", __name__)
