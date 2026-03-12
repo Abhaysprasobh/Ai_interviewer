@@ -29,7 +29,7 @@ export default function UserLogin() {
       setUserEmail(email);
 
       // Redirect to dashboard
-      router.push("/user/dashboard");
+      window.location.href = "/user/dashboard"
       router.refresh();
     } catch (err) {
       setError(err.response?.data?.error || "Invalid credentials or server error");

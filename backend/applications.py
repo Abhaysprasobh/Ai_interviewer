@@ -8,6 +8,7 @@ from utils import currentTime
 from db import applications_collection,jobs_collection
 from auth import user_required, company_required
 from datetime import timezone
+from resume_scoring import calculate_resume_score
 
 applications_bp = Blueprint("applications", __name__, url_prefix="/api/applications")
 
@@ -49,7 +50,16 @@ def apply_job():
     resume.save(filepath)
 
     now = currentTime()
+    # ----------------------------
+    # Calculate AI Resume Score
+    # ----------------------------
+    required_skills = job.get("skills", [])
 
+    score_data = calculate_resume_score(filepath, required_skills)
+
+    # ----------------------------
+    # Insert Application
+    # ----------------------------
     applications_collection.insert_one({
         "jobId": ObjectId(job_id),
         "companyId": job["companyId"],
@@ -63,8 +73,14 @@ def apply_job():
             {"status": "submitted", "at": now}
         ],
 
-        "aiResumeScore": None,
+        "aiResumeScore": score_data["resume_score"],
         "aiInterviewScore": None,
+
+        "aiScoreBreakdown": {
+            "skillMatch": score_data["skill_match"],
+            "experienceMatch": score_data["experience_match"],
+            "educationMatch": score_data["education_match"]
+        },
 
         "appliedAt": now,
         "updatedAt": now

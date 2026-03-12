@@ -85,7 +85,7 @@ export default function JobApply() {
 
             // Redirect to dashboard after 2 seconds
             setTimeout(() => {
-                router.push("/user/dashboard");
+                window.location.href = "/user/jobs";
             }, 2000);
         } catch (err) {
             setError(err.response?.data?.error || "Failed to submit application");
@@ -106,10 +106,10 @@ export default function JobApply() {
                         Your application has been successfully submitted. We'll review it and get back to you soon.
                     </p>
                     <Link
-                        href="/user/dashboard"
+                        href="/user/jobs/"
                         className="inline-block px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-indigo-600 transition-colors font-medium"
                     >
-                        Go to Dashboard
+                        Browse Other Jobs
                     </Link>
                 </div>
             </div>
@@ -131,7 +131,8 @@ export default function JobApply() {
                 <h1 className="text-4xl font-bold text-slate-900 mb-2">Apply for Position</h1>
                 {job && (
                     <p className="text-slate-600">
-                        {job.title} at {job.companyId?.companyName}
+                        {job.title} 
+                        {/* at {job.companyId?.companyName} */}
                     </p>
                 )}
             </div>
