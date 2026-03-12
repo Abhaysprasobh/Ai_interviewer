@@ -300,11 +300,23 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                   className="w-4 h-4 cursor-pointer accent-indigo-600"
                 />
               </th>
-              <th className="px-4 py-3 text-left">Candidate</th>
-              <th className="px-4 py-3 text-center">Status</th>
-              <th className="px-4 py-3 text-center">Scores</th>
-              <th className="px-4 py-3 text-center">Applied</th>
-              <th className="px-4 py-3 text-right">Actions</th>
+              <th className="px-4 py-3 text-left border-r border-slate-300">
+                Candidate
+              </th>
+              <th className="px-4 py-3 text-center border-r border-slate-300">
+                Status
+              </th>
+              <th className="px-4 py-3 text-center border-l border-slate-300">
+                Resume
+              </th>
+              <th className="px-4 py-3 text-center">Interview</th>
+              <th className="px-4 py-3 text-center border-r border-slate-300">
+                Combined
+              </th>
+              <th className="px-4 py-3 text-center border-r border-slate-300">
+                Applied
+              </th>
+              <th className="px-4 py-3 text-center">Actions</th>
             </tr>
           </thead>
 
@@ -335,7 +347,7 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                     </td>
 
                     {/* Candidate */}
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 border-r border-slate-300">
                       <div className="font-semibold text-slate-900">
                         {app.user?.fullName}
                       </div>
@@ -361,55 +373,69 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                     </td>
 
                     {/* Scores (UPDATED WITH EXPAND ICON) */}
-                    <td className="px-4 py-3 text-slate-800 text-center">
-                      <div className="space-y-1">
-                        <div className="text-xs">
-                          Resume:{" "}
-                          <span className="font-semibold">
-                            {app.aiResumeScore !== null &&
-                            app.aiResumeScore !== undefined
-                              ? `${app.aiResumeScore}%`
-                              : "—"}
-                          </span>
-                        </div>
-
-                        {/* Interview Score & Dropdown Button */}
-                        <div className="text-xs flex items-center justify-center gap-1">
-                          Interview:{" "}
-                          <span className="font-semibold text-indigo-700">
-                            {app.aiInterviewScore !== null &&
-                            app.aiInterviewScore !== undefined
-                              ? `${app.aiInterviewScore}%`
-                              : "—"}
-                          </span>
-                          {/* Only show the expand icon if they have actually completed the interview */}
+                    {/* Resume Score */}
+                    <td className="px-4 py-3 text-center border-l border-slate-200">
+                      <span className="font-semibold text-slate-800">
+                        {app.aiResumeScore !== null &&
+                        app.aiResumeScore !== undefined
+                          ? `${app.aiResumeScore}%`
+                          : "—"}
+                      </span>
+                    </td>
+                    {/* Interview Score */}
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <span className="font-semibold text-indigo-700">
                           {app.aiInterviewScore !== null &&
-                            app.aiInterviewScore !== undefined && (
-                              <button
-                                onClick={() => toggleExpand(app._id)}
-                                className="p-1 hover:bg-indigo-200 rounded text-indigo-600 transition-colors ml-1"
-                                title="View Interview Dashboard"
-                              >
-                                {isExpanded ? (
-                                  <ChevronUp className="w-4 h-4" />
-                                ) : (
-                                  <BarChart className="w-4 h-4" />
-                                )}
-                              </button>
-                            )}
-                        </div>
+                          app.aiInterviewScore !== undefined
+                            ? `${app.aiInterviewScore}%`
+                            : "—"}
+                        </span>
 
-                        {/* Quick Proctoring Flag Badge */}
-                        {app.proctoring_flag && (
-                          <div className="text-[10px] font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded uppercase tracking-wider inline-block mt-1">
-                            Flagged
-                          </div>
-                        )}
+                        {app.aiInterviewScore !== null &&
+                          app.aiInterviewScore !== undefined && (
+                            <button
+                              onClick={() => toggleExpand(app._id)}
+                              className="p-1 hover:bg-indigo-200 rounded text-indigo-600 transition-colors"
+                              title="View Interview Dashboard"
+                            >
+                              {isExpanded ? (
+                                <ChevronUp className="w-4 h-4" />
+                              ) : (
+                                <BarChart className="w-4 h-4" />
+                              )}
+                            </button>
+                          )}
                       </div>
+                    </td>
+                    {/* Combined Score */}
+                    <td className="px-4 py-3 text-center border-r border-slate-200">
+                      {(() => {
+                        const resume = app.aiResumeScore ?? 0;
+                        const interview = app.aiInterviewScore ?? 0;
+                        const combined = interview
+                          ? Math.round(interview * 0.6 + resume * 0.4)
+                          : resume;
+
+                        return (
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="font-semibold text-green-700">
+                              {combined ? `${combined}%` : "—"}
+                            </span>
+
+                            {/* keep proctoring flag */}
+                            {app.proctoring_flag && (
+                              <span className="text-[10px] font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                Flagged
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </td>
 
                     {/* Applied */}
-                    <td className="px-4 py-3 text-slate-700 text-center">
+                    <td className="px-4 py-3 text-slate-700 text-center border-r border-slate-300">
                       {formatDate(app.appliedAt)}
                     </td>
 
