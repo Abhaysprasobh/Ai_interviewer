@@ -41,6 +41,11 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
   const [pendingStatus, setPendingStatus] = useState("");
   const [feedback, setFeedback] = useState(null);
 
+
+  const [minResumeScore, setMinResumeScore] = useState("");
+  const [minInterviewScore, setMinInterviewScore] = useState("");
+  const [minCombinedScore, setMinCombinedScore] = useState("");
+
   // Show feedback message
   const showFeedback = (type, message) => {
     setFeedback({ type, message });
@@ -70,10 +75,25 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
   };
 
   const filteredApplicants = useMemo(() => {
+    const resumeMin = minResumeScore === "" ? null : Number(minResumeScore);
+    const interviewMin =
+      minInterviewScore === "" ? null : Number(minInterviewScore);
+    const combinedMin = minCombinedScore === "" ? null : Number(minCombinedScore);
+
     return applicants
       .filter((a) => {
         if (statusFilter && a.status !== statusFilter) return false;
+
+        const resume = a.aiResumeScore ?? 0;
+        const interview = a.aiInterviewScore ?? 0;
+        const combined = interview ? interview * 0.6 + resume * 0.4 : resume;
+
+        if (resumeMin !== null && resume < resumeMin) return false;
+        if (interviewMin !== null && interview < interviewMin) return false;
+        if (combinedMin !== null && combined < combinedMin) return false;
+
         if (!search) return true;
+
         const q = search.toLowerCase();
         return (
           a.user?.fullName?.toLowerCase().includes(q) ||
@@ -90,8 +110,15 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
         }
         return new Date(b.appliedAt) - new Date(a.appliedAt);
       });
-  }, [applicants, search, statusFilter, sortKey]);
-
+  }, [
+    applicants,
+    search,
+    statusFilter,
+    sortKey,
+    minResumeScore,
+    minInterviewScore,
+    minCombinedScore,
+  ]);
   const toggleSelect = (id) =>
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
@@ -176,6 +203,30 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
             ))}
           </select>
 
+          <input
+            type="number"
+            placeholder="Min Resume"
+            value={minResumeScore}
+            onChange={(e) => setMinResumeScore(e.target.value)}
+            className="w-28 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 bg-white border border-slate-400 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 focus:outline-none"
+          />
+
+          <input
+            type="number"
+            placeholder="Min Interview"
+            value={minInterviewScore}
+            onChange={(e) => setMinInterviewScore(e.target.value)}
+            className="w-32 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 bg-white border border-slate-400 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 focus:outline-none"
+          />
+
+          <input
+            type="number"
+            placeholder="Min Combined"
+            value={minCombinedScore}
+            onChange={(e) => setMinCombinedScore(e.target.value)}
+            className="w-32 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 bg-white border border-slate-400 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 focus:outline-none"
+          />
+
           {/* Sort */}
           <select
             value={sortKey}
@@ -203,7 +254,9 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                 <option value="">Select status</option>
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s} value={s}>
-                    {s.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                    {s
+                      .replace(/_/g, " ")
+                      .replace(/\b\w/g, (l) => l.toUpperCase())}
                   </option>
                 ))}
               </select>
@@ -472,8 +525,12 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
                   colSpan="6"
                   className="px-6 py-16 text-center text-slate-600"
                 >
-                  {search || statusFilter
-                    ? "No applicants match your filters"
+                  {search ||
+                  statusFilter ||
+                  minResumeScore ||
+                  minInterviewScore ||
+                  minCombinedScore
+                    ? "No applicants match your current filters"
                     : "No applicants yet"}
                 </td>
               </tr>
