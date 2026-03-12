@@ -45,6 +45,28 @@ export default function ApplicantDetail() {
             setLoading(false);
         }
     };
+    const viewResume = async (resumeUrl) => {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch(
+            `http://localhost:5000/api/applications/files/view/${encodeURIComponent(resumeUrl)}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        if (!res.ok) {
+            alert("Failed to load resume");
+            return;
+        }
+
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, "_blank");
+    };
+
 
     const updateStatus = async (status) => {
         setUpdating(true);
@@ -137,15 +159,16 @@ export default function ApplicantDetail() {
 
                 {/* Resume */}
                 {application.resumeUrl && (
-                    <a
-                        href={application.resumeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <button
+                        onClick={() => viewResume(application.resumeUrl)}
+                        title="View Resume"
                         className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-slate-100 hover:bg-slate-200 rounded-xl font-medium text-slate-700 transition mb-6"
                     >
                         <FileText className="w-5 h-5" />
                         View Resume
-                    </a>
+                    </button>
+
+
                 )}
 
                 {/* Cover Letter */}
