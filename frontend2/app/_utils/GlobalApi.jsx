@@ -171,5 +171,6 @@ export default {
   parseResume,
   recognizeSpeech,
   transcribeAudio,
+  textToSpeech
 };
 

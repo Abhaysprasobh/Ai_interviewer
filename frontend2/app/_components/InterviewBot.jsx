@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import GlobalApi from '../_utils/GlobalApi';
 import { Mic, Send, Loader2, Play, StopCircle, Sparkles, ArrowRight, FileText, XCircle, BarChart, CheckCircle } from 'lucide-react';
 
-export default function InterviewBot({ resumeData }) {
+export default function InterviewBot({ resumeData , }) {
   const [role, setRole] = useState(''); 
   const [question, setQuestion] = useState(null);
   const [answer, setAnswer] = useState('');

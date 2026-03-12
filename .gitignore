@@ -10,7 +10,7 @@ __pycache__/
 *.jpg
 *.pdf
 
-# */node_modules/*
+*/node_modules/
 
 
 node_modules/.cache/
