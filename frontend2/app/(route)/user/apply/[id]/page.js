@@ -190,7 +190,7 @@ export default function JobApply() {
                 {/* Cover Letter */}
                 <div className="mb-6">
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Cover Letter <span className="text-slate-500">(Optional)</span>
+                        Cover Letter <span className="text-red-600">*</span>
                     </label>
                     <textarea
                         value={coverLetter}
