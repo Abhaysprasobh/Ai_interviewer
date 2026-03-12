@@ -18,6 +18,7 @@ def generate_question(context, history=None):
     if history and len(history) > 0:
         history_text = "Previously Asked Questions:\n" + "\n".join([f"- {q}" for q in history])
 
+    # 1. Added CRITICAL CONSTRAINTS here to keep it short
     prompt = f"""
     You are an expert technical interviewer for a **{role}** role.
     Candidate Context:
@@ -28,8 +29,11 @@ def generate_question(context, history=None):
 
     Task: Ask exactly ONE new technical interview question. Do NOT ask any of the previously asked questions.
     
+    CRITICAL CONSTRAINTS:
+    1. Keep the question short and conversational (Maximum 2 sentences).
+    
     Return ONLY a JSON object with the following keys:
-    - "question": (string) The interview question.
+    - "question": (string) The short interview question.
     - "expected_answer": (string) A concise, ideal answer to the question.
     - "keywords": (list of strings) 3 to 5 essential technical terms that MUST be in a correct answer.
     """
@@ -42,7 +46,16 @@ def generate_question(context, history=None):
                 response_mime_type="application/json"
             )
         )
-        return json.loads(response.text)
+        
+        # 2. Added the Markdown Safety Net here to prevent crashes
+        text = response.text.strip()
+        if text.startswith("```json"):
+            text = text[7:-3].strip()
+        elif text.startswith("```"):
+            text = text[3:-3].strip()
+            
+        return json.loads(text)
+        
     except Exception as e:
         print(f"Error generating question: {e}")
         # Fallback JSON structure

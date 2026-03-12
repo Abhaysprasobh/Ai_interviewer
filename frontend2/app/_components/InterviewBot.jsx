@@ -16,7 +16,7 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
 
   // New States for 7-Question Loop & Dashboard
   const [qNumber, setQNumber] = useState(0);
-  const [totalQ, setTotalQ] = useState(7);
+  const [totalQ, setTotalQ] = useState(3);
   const [isComplete, setIsComplete] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
 
@@ -30,6 +30,48 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
       setSkills(resumeData.skills);
     }
   }, [resumeData]);
+
+    // 2. The Full Screen Monitor
+  useEffect(() => {
+    const handleFullScreenChange = () => {
+      // If the browser is no longer in full screen, AND the interview is active
+      if (!document.fullscreenElement && question !== null && !isComplete) {
+        abortInterviewForCheating();
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullScreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullScreenChange);
+  }, [question, isComplete, qNumber]);
+
+// 1. Function to immediately fail the interview
+  const abortInterviewForCheating = async () => {
+    if (isRecording) stopRecording(); // Stop the mic immediately
+    
+    alert("🚨 INTERVIEW TERMINATED: You exited full-screen mode. This has been logged as a proctoring violation.");
+    
+    setIsComplete(true);
+    
+    // Create a failed dashboard state directly
+    setDashboardData({
+      overall_score_percentage: 0,
+      average_technical: 0,
+      average_communication: 0,
+      summary: "Interview was automatically terminated due to a proctoring violation (exited full-screen mode).",
+      detailed_breakdown: []
+    });
+
+    // Send the failure to the backend using GlobalApi!
+    try {
+      await GlobalApi.abortInterview({
+        application_id: applicationId,
+        reason: "Exited Full Screen Mode",
+        questions_completed: qNumber
+      });
+    } catch (err) {
+      console.error("Failed to notify backend of abortion:", err);
+    }
+  };
 
   const endInterview = () => {
     if (isRecording) stopRecording();
@@ -57,9 +99,18 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
     }
   };
 
-  // 1. Start Interview
+ // 1. Start Interview
   const startInterview = async () => {
     if (!role) return alert("Please enter a target Job Role to start.");
+
+    // --- PROCTORING TRIGGER: Force Full Screen BEFORE starting ---
+    try {
+      await document.documentElement.requestFullscreen();
+    } catch (err) {
+      alert("🚨 You must allow full-screen mode to start this proctored interview.");
+      return; // Stop the execution immediately if the browser blocks it
+    }
+    // -----------------------------------------------------------
 
     setLoading(true);
     setFeedback(null);
@@ -71,10 +122,12 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
       const dataToSend = {
         role: role, 
         skills: skills,
+        application_id: applicationId || null, // <--- Crucial for MongoDB saving!
         education: resumeData?.education || "",
         experience: resumeData?.experience || ""
       };
 
+      // Uses your new GlobalApi!
       const resp = await GlobalApi.startInterview(dataToSend);
       setQuestion(resp.data.question);
       setSessionId(resp.data.session_id); 
@@ -87,12 +140,17 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
     } catch (error) {
       console.error(error);
       alert("Error starting interview");
+      
+      // Safety net: If the API fails to start, safely exit full screen
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(err => console.error(err));
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // 2. Submit Answer
+// 2. Submit Answer
   const submitResponse = async () => {
     if (!answer) return;
     setLoading(true);
@@ -105,10 +163,10 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
       
       setFeedback(resp.data.feedback);
       
-      // Check if interview is over
+      // FIX: Don't set isComplete(true) here! Just stage the data so they can read the feedback.
       if (resp.data.is_complete) {
-        setIsComplete(true);
         setDashboardData(resp.data.dashboard);
+        setNextQ(null);
       } else {
         setNextQ(resp.data.next_question);
         setQNumber(resp.data.question_number);
@@ -123,8 +181,19 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
   };
 
   // 3. Load Next Question
-  const loadNextQuestion = () => {
-    if (nextQ) {
+  // 3. Handle Next Question OR Finish Interview
+  const handleNextAction = () => {
+    // If we have dashboard data staged, it means the interview is over!
+    if (dashboardData) {
+      setIsComplete(true); // THIS officially triggers the dashboard render
+
+      // Safely exit full-screen proctoring naturally
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(err => console.error(err));
+      }
+    } 
+    // Otherwise, just load the next question
+    else if (nextQ) {
       setQuestion(nextQ);     
       setAnswer('');          
       setFeedback(null);      
@@ -380,16 +449,17 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
            </div>
         )}
 
-        {feedback && (
+{feedback && (
           <div className="bg-green-50 border border-green-100 p-6 rounded-2xl animate-in zoom-in-95 shadow-sm">
              <span className="text-green-700 text-xs font-bold uppercase mb-3 block tracking-wide">AI Feedback & Evaluation</span>
              <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{feedback}</p>
              
+             {/* FIX: Use handleNextAction and dynamically check for dashboardData */}
              <button 
-               onClick={loadNextQuestion} 
+               onClick={handleNextAction} 
                className="mt-6 bg-white border border-green-200 text-green-700 px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-green-100 transition flex items-center gap-2 shadow-sm"
              >
-               {isComplete ? 'View Results' : 'Next Question'} <ArrowRight className="h-4 w-4"/>
+               {dashboardData ? 'View Results' : 'Next Question'} <ArrowRight className="h-4 w-4"/>
              </button>
           </div>
         )}

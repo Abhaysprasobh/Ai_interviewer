@@ -112,6 +112,10 @@ def my_applications():
             "appliedAt": 1,
             "aiResumeScore": 1,
             "aiInterviewScore": 1,
+            "interviewSummary": 1,
+            "interviewDetails": 1,
+            "proctoring_flag": 1,
+            "proctoring_reason": 1,
 
             "job": {
                 "_id": "$job._id",
@@ -169,6 +173,10 @@ def job_applicants(job_id):
             "resumeUrl": 1,
             "aiResumeScore": 1,
             "aiInterviewScore": 1,
+            "interviewSummary": 1,
+            "interviewDetails": 1,
+            "proctoring_flag": 1,
+            "proctoring_reason": 1,
             "user": {
                 "_id": "$user._id",
                 "fullName": "$user.fullName",

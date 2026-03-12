@@ -7,7 +7,52 @@ import uuid
 interview_bp = Blueprint("interview", __name__)
 
 TEST_USER_ID = "test_user_123" 
-MAX_QUESTIONS = 7
+MAX_QUESTIONS = 3
+
+from flask import request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from bson.objectid import ObjectId # Assuming you are using MongoDB
+# Make sure to import your mongo db instance, e.g., from app import mongo
+
+@interview_bp.route('/abort', methods=['POST'])
+# @jwt_required()
+def abort_interview():
+    """
+    Catches proctoring violations (like exiting full screen) 
+    and instantly fails the candidate's application in the database.
+    """
+    try:
+        current_user = get_jwt_identity()
+        data = request.get_json()
+        
+        application_id = data.get('application_id')
+        reason = data.get('reason', 'Proctoring Violation')
+        questions_completed = data.get('questions_completed', 0)
+
+        print(f"🚨 PROCTORING FLAG: User {current_user} aborted. Reason: {reason}")
+
+        # If this was just a practice run (no application_id), just return success
+        if not application_id:
+            return jsonify({"message": "Practice interview aborted."}), 200
+
+        # If it's a real job application, update MongoDB to fail them
+        # Adjust 'mongo.db.applications' to match your actual database variable
+        db.applications.update_one(
+            {"_id": ObjectId(application_id)},
+            {"$set": {
+                "status": "Rejected", # Or "Failed", depending on your system
+                "proctoring_flag": True,
+                "proctoring_reason": reason,
+                "interview_score": 0,
+                "notes": f"Auto-rejected by system. Completed {questions_completed} questions before violation."
+            }}
+        )
+
+        return jsonify({"message": "Interview aborted and database updated."}), 200
+
+    except Exception as e:
+        print(f"Error aborting interview: {e}")
+        return jsonify({"error": "Internal server error during abort"}), 500
 
 @interview_bp.route("/start", methods=["POST"])
 def start_interview():
@@ -16,6 +61,7 @@ def start_interview():
     skills = data.get("skills", [])
     experience = data.get("experience", "")
     education = data.get("education", "")
+    application_id = data.get("application_id")
     
     session_id = str(uuid.uuid4())
     context = {"role": role, "skills": skills, "experience": experience, "education": education}
@@ -25,6 +71,7 @@ def start_interview():
     db.sessions.insert_one({
         "session_id": session_id,
         "user_id": TEST_USER_ID,
+        "application_id": application_id,
         "role": role,           
         "skills": skills,
         "experience": experience, 
@@ -55,6 +102,7 @@ def answer_question():
     current_question = current_q_data["question"]
     expected_answer = current_q_data["expected_answer"]
     keywords = current_q_data["keywords"]
+    application_id = session.get("application_id")
 
     # --- HYBRID SCORING ENGINE ---
     
@@ -102,6 +150,19 @@ def answer_question():
         
         overall_percentage = int(((total_tech + total_comm) / (MAX_QUESTIONS * 20)) * 100)
         ai_summary = generate_dashboard_summary(all_results)
+
+                # --- Save successful score AND details to Application Database ---
+        if application_id:
+            db.applications.update_one(
+                {"_id": ObjectId(application_id)},
+                {"$set": {
+                    "aiInterviewScore": overall_percentage, # Match your ATS schema
+                    "interviewSummary": ai_summary,         # Save the AI paragraph
+                    "interviewDetails": all_results,        # Save the Q&A array
+                    "status": "interview_completed",        # Match your allowed ATS statuses
+                    "proctoring_flag": False 
+                }}
+            )
 
         return jsonify({
             "is_complete": True,

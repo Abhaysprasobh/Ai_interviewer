@@ -31,7 +31,7 @@ const loginCompany = (data) => axiosClient.post('/auth/company/login', data);
 // --- Interview ---
 const startInterview = (data) => axiosClient.post('/interview/start', data);
 const submitAnswer = (data) => axiosClient.post('/interview/answer', data);
-
+const abortInterview = (data) => axiosClient.post('/interview/abort', data);
 // --- Resume Parser (File Upload)  ---
 const parseResume = (formData) => axiosClient.post('/resume/parse', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
@@ -166,6 +166,7 @@ export default {
   // Interview / AI
   startInterview,
   submitAnswer,
+  abortInterview,
 
   // Resume / Speech
   parseResume,

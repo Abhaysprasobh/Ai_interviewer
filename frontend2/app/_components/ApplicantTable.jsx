@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, Fragment } from "react";
 import Link from "next/link";
 import {
   Mail,
@@ -10,7 +10,9 @@ import {
   CheckSquare,
   CheckCircle2,
   XCircle,
-  Download,
+  BarChart,
+  ChevronUp,
+  ChevronDown
 } from "lucide-react";
 import StatusBadge from "@/app/_components/StatusBadge";
 import GlobalApi from "@/app/_utils/GlobalApi";
@@ -24,11 +26,14 @@ const STATUS_OPTIONS = [
   "rejected",
 ];
 
-
-
-
 export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
   const [search, setSearch] = useState("");
+  const [expandedAppId, setExpandedAppId] = useState(null);
+  
+  const toggleExpand = (appId) => {
+      setExpandedAppId(expandedAppId === appId ? null : appId);
+  };
+  
   const [statusFilter, setStatusFilter] = useState("");
   const [sortKey, setSortKey] = useState("appliedAt");
   const [selected, setSelected] = useState([]);
@@ -63,37 +68,6 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
     const url = window.URL.createObjectURL(blob);
     window.open(url, "_blank");
   };
-
-  const downloadResume = async (resumeUrl) => {
-    const token = localStorage.getItem("token");
-
-    const res = await fetch(
-      `http://localhost:5000/api/applications/files/download/${encodeURIComponent(resumeUrl)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-
-    if (!res.ok) {
-      alert("Failed to download resume");
-      return;
-    }
-
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = resumeUrl.split("/").pop();
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
-  };
-
-
 
   const filteredApplicants = useMemo(() => {
     return applicants
@@ -175,30 +149,24 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
       )}
 
       {/* ===== TOOLBAR ===== */}
-        <div className="p-4 bg-slate-100 border-b border-slate-300 rounded-t-2xl">
-          <div className="flex flex-wrap gap-3 items-center">
-            {/* Search */}
-            <div className="relative flex-1 min-w-[260px]">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search name, email or phone"
-            className="w-full pl-10 pr-3 py-2 text-sm text-slate-900 placeholder:text-slate-500
-               bg-white border border-slate-400 rounded-lg
-               focus:ring-2 focus:ring-indigo-600
-               focus:border-indigo-600 focus:outline-none"
-          />
-            </div>
+      <div className="p-4 bg-slate-100 border-b border-slate-300 rounded-t-2xl">
+        <div className="flex flex-wrap gap-3 items-center">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[260px]">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search name, email or phone"
+              className="w-full pl-10 pr-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 bg-white border border-slate-400 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 focus:outline-none"
+            />
+          </div>
 
           {/* Status Filter */}
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 text-sm text-slate-900
-                       bg-white border border-slate-400 rounded-lg
-                       focus:ring-2 focus:ring-indigo-600 focus:outline-none
-                       cursor-pointer"
+            className="px-3 py-2 text-sm text-slate-900 bg-white border border-slate-400 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none cursor-pointer"
           >
             <option value="">All statuses</option>
             {STATUS_OPTIONS.map((s) => (
@@ -212,10 +180,7 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
           <select
             value={sortKey}
             onChange={(e) => setSortKey(e.target.value)}
-            className="px-3 py-2 text-sm text-slate-900
-                       bg-white border border-slate-400 rounded-lg
-                       focus:ring-2 focus:ring-indigo-600 focus:outline-none
-                       cursor-pointer"
+            className="px-3 py-2 text-sm text-slate-900 bg-white border border-slate-400 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none cursor-pointer"
           >
             <option value="appliedAt">Newest first</option>
             <option value="aiResumeScore">Resume score</option>
@@ -224,11 +189,7 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
 
           {/* BULK BAR */}
           {selected.length > 0 && (
-            <div
-              className="flex flex-wrap items-center gap-3 ml-auto
-                  bg-indigo-50 border-2 border-indigo-400
-                  px-4 py-2 rounded-xl shadow-md"
-            >
+            <div className="flex flex-wrap items-center gap-3 ml-auto bg-indigo-50 border-2 border-indigo-400 px-4 py-2 rounded-xl shadow-md">
               <span className="text-sm font-semibold text-indigo-900 flex items-center gap-2">
                 <CheckSquare className="w-4 h-4" />
                 {selected.length} selected
@@ -237,18 +198,12 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
               <select
                 value={pendingStatus}
                 onChange={(e) => setPendingStatus(e.target.value)}
-                className="px-3 py-1.5 text-sm text-slate-900
-                 bg-white
-                 border-2 border-indigo-500 rounded-lg
-                 focus:ring-2 focus:ring-indigo-600 focus:outline-none
-                 cursor-pointer"
+                className="px-3 py-1.5 text-sm text-slate-900 bg-white border-2 border-indigo-500 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none cursor-pointer"
               >
                 <option value="">Select status</option>
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s} value={s}>
-                    {s
-                      .replace(/_/g, " ")
-                      .replace(/\b\w/g, (l) => l.toUpperCase())}
+                    {s.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                   </option>
                 ))}
               </select>
@@ -256,15 +211,11 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
               <button
                 disabled={!pendingStatus || bulkLoading}
                 onClick={() => bulkUpdateStatus(pendingStatus)}
-                className={`
-        px-4 py-1.5 rounded-lg text-sm font-semibold
-        transition-all duration-200
-        ${
-          pendingStatus && !bulkLoading
-            ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg"
-            : "bg-slate-300 text-slate-600 cursor-not-allowed"
-        }
-      `}
+                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  pendingStatus && !bulkLoading
+                    ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg"
+                    : "bg-slate-300 text-slate-600 cursor-not-allowed"
+                }`}
               >
                 {bulkLoading ? "Updating…" : "Apply"}
               </button>
@@ -307,113 +258,179 @@ export default function ApplicantsTable({ applicants = [], jobId, refresh }) {
           <tbody>
             {filteredApplicants.map((app, idx) => {
               const isSelected = selected.includes(app._id);
+              const isExpanded = expandedAppId === app._id;
 
               return (
-                <tr
-                  key={app._id}
-                  className={`
-                    border-b border-slate-200
-                    ${idx % 2 === 0 ? "bg-white" : "bg-slate-50"}
-                    ${isSelected ? "!bg-indigo-100 border-indigo-300" : ""}
-                    hover:bg-indigo-50 transition-colors
-                  `}
-                >
-                  <td className="px-4 py-3">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleSelect(app._id)}
-                      className="w-4 h-4 cursor-pointer accent-indigo-600"
-                    />
-                  </td>
+                <Fragment key={app._id}>
+                  {/* MAIN ROW */}
+                  <tr
+                    className={`
+                      border-b border-slate-200
+                      ${idx % 2 === 0 ? "bg-white" : "bg-slate-50"}
+                      ${isSelected ? "!bg-indigo-100 border-indigo-300" : ""}
+                      ${isExpanded ? "!bg-indigo-50 border-b-0" : ""}
+                      hover:bg-indigo-50 transition-colors
+                    `}
+                  >
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelect(app._id)}
+                        className="w-4 h-4 cursor-pointer accent-indigo-600"
+                      />
+                    </td>
 
-                  {/* Candidate */}
-                  <td className="px-4 py-3">
-                    <div className="font-semibold text-slate-900">
-                      {app.user?.fullName}
-                    </div>
-                    <div className="mt-1 text-xs text-slate-700 space-y-1">
-                      {app.user?.email && (
-                        <div className="flex items-center gap-1">
-                          <Mail className="w-3 h-3 text-slate-600" />
-                          <span>{app.user.email}</span>
-                        </div>
-                      )}
-                      {app.user?.mobile && (
-                        <div className="flex items-center gap-1">
-                          <Phone className="w-3 h-3 text-slate-600" />
-                          <span>{app.user.mobile}</span>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-
-                  {/* Status */}
-                  <td className="px-4 py-3 text-center">
-                    <StatusBadge status={app.status} />
-                  </td>
-
-                  {/* Scores */}
-                  <td className="px-4 py-3 text-slate-800 text-center">
-                    <div className="space-y-1">
-                      <div className="text-xs">
-                        Resume:{" "}
-                        <span className="font-semibold">
-                          {app.aiResumeScore ?? "—"}
-                        </span>
+                    {/* Candidate */}
+                    <td className="px-4 py-3">
+                      <div className="font-semibold text-slate-900">
+                        {app.user?.fullName}
                       </div>
-                      <div className="text-xs">
-                        Interview:{" "}
-                        <span className="font-semibold">
-                          {app.aiInterviewScore ?? "—"}
-                        </span>
+                      <div className="mt-1 text-xs text-slate-700 space-y-1">
+                        {app.user?.email && (
+                          <div className="flex items-center gap-1">
+                            <Mail className="w-3 h-3 text-slate-600" />
+                            <span>{app.user.email}</span>
+                          </div>
+                        )}
+                        {app.user?.mobile && (
+                          <div className="flex items-center gap-1">
+                            <Phone className="w-3 h-3 text-slate-600" />
+                            <span>{app.user.mobile}</span>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </td>
+                    </td>
 
-                  {/* Applied */}
-                  <td className="px-4 py-3 text-slate-700 text-center">
-                    {formatDate(app.appliedAt)}
-                  </td>
-                  {/* Actions */}
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      {app.resumeUrl && (
-                        <>
-                          {/* VIEW Button */}
+                    {/* Status */}
+                    <td className="px-4 py-3 text-center">
+                      <StatusBadge status={app.status} />
+                    </td>
+
+                    {/* Scores (UPDATED WITH EXPAND ICON) */}
+                    <td className="px-4 py-3 text-slate-800 text-center">
+                      <div className="space-y-1">
+                        <div className="text-xs">
+                          Resume:{" "}
+                          <span className="font-semibold">
+                            {app.aiResumeScore ?? "—"}
+                          </span>
+                        </div>
+                        
+                        {/* Interview Score & Dropdown Button */}
+                        <div className="text-xs flex items-center justify-center gap-1">
+                          Interview:{" "}
+                          <span className="font-semibold text-indigo-700">
+                            {app.aiInterviewScore !== null && app.aiInterviewScore !== undefined ? `${app.aiInterviewScore}%` : "—"}
+                          </span>
+                          
+                          {/* Only show the expand icon if they have actually completed the interview */}
+                          {app.aiInterviewScore !== null && app.aiInterviewScore !== undefined && (
+                            <button
+                              onClick={() => toggleExpand(app._id)}
+                              className="p-1 hover:bg-indigo-200 rounded text-indigo-600 transition-colors ml-1"
+                              title="View Interview Dashboard"
+                            >
+                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <BarChart className="w-4 h-4" />}
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Quick Proctoring Flag Badge */}
+                        {app.proctoring_flag && (
+                          <div className="text-[10px] font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded uppercase tracking-wider inline-block mt-1">
+                            Flagged
+                          </div>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Applied */}
+                    <td className="px-4 py-3 text-slate-700 text-center">
+                      {formatDate(app.appliedAt)}
+                    </td>
+                    
+                    {/* Actions */}
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-2">
+                        {app.resumeUrl && (
                           <button
                             onClick={() => viewResume(app.resumeUrl)}
-                            className="p-2 border border-slate-400 rounded-lg
-             hover:bg-slate-200 transition-colors
-             text-slate-700 hover:text-slate-900"
+                            className="p-2 border border-slate-400 rounded-lg hover:bg-slate-200 transition-colors text-slate-700 hover:text-slate-900"
                             title="View Resume"
                           >
                             <FileText className="w-4 h-4" />
                           </button>
+                        )}
+                        <Link
+                          href={`/company/applicants/${app._id}`}
+                          className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors shadow-sm hover:shadow-md"
+                        >
+                          View
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
 
-                          {/* <button
-                            onClick={() => downloadResume(app.resumeUrl)}
-                            className="p-2 border border-slate-400 rounded-lg
-             hover:bg-slate-200 transition-colors
-             text-slate-700 hover:text-slate-900"
-                            title="Download Resume"
-                          >
-                            <Download className="w-4 h-4" />
-                          </button> */}
-                        </>
-                      )}
-                      <Link
-                        href={`/company/applicants/${app._id}`}
-                        className="px-4 py-2 rounded-lg
-                 bg-indigo-600 hover:bg-indigo-700
-                 text-white font-semibold
-                 transition-colors shadow-sm hover:shadow-md"
-                      >
-                        View
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
+                  {/* EXPANDED DASHBOARD ROW */}
+                  {isExpanded && app.interviewDetails && (
+                    <tr>
+                      <td colSpan="6" className="p-0 border-b border-slate-200 bg-slate-50">
+                        <div className="p-6 border-t border-indigo-100 shadow-inner">
+                          <div className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                            
+                            {/* Proctoring Alert */}
+                            {app.proctoring_flag && (
+                              <div className="bg-red-50 border border-red-200 p-4 rounded-lg mb-6 flex items-start gap-3">
+                                <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                                <div>
+                                  <h4 className="font-bold text-red-800">Proctoring Violation Logged</h4>
+                                  <p className="text-red-700 text-sm mt-1">{app.proctoring_reason}</p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* AI Summary */}
+                            <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                              <BarChart className="w-4 h-4 text-indigo-500" />
+                              AI Interview Summary
+                            </h4>
+                            <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+                              {app.interviewSummary}
+                            </p>
+
+                            {/* Detailed Q&A Transcript */}
+                            <h4 className="font-bold text-slate-800 mb-4 border-b pb-2">Detailed Q&A Transcript</h4>
+                            <div className="space-y-4">
+                              {app.interviewDetails.map((detail, index) => (
+                                <div key={index} className="bg-slate-50 border border-slate-100 p-4 rounded-lg">
+                                  <p className="font-bold text-slate-800 text-sm mb-2">
+                                    <span className="text-indigo-600 mr-2">Q{index + 1}:</span> 
+                                    {detail.question}
+                                  </p>
+                                  
+                                  <div className="text-sm text-slate-600 mb-3 pl-4 border-l-2 border-indigo-200 whitespace-pre-wrap">
+                                    {detail.answer || <span className="italic text-slate-400">No audio transcribed.</span>}
+                                  </div>
+                                  
+                                  <div className="flex gap-6 mt-2 border-t border-slate-200 pt-3">
+                                    <span className="text-xs font-semibold text-slate-500">
+                                      Tech Score: <span className="text-indigo-600 ml-1">{detail.final_technical_score}/10</span>
+                                    </span>
+                                    <span className="text-xs font-semibold text-slate-500">
+                                      Comm Score: <span className="text-indigo-600 ml-1">{detail.communication_score}/10</span>
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               );
             })}
 
