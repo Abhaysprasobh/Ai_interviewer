@@ -36,24 +36,16 @@ export default function Header() {
     <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="h-14 flex items-center justify-between">
-                <Link href="/" className="flex items-center gap-3">
-                <span className="font-extrabold text-2xl sm:text-3xl text-slate-900">
-                  AI<span className="text-indigo-600">Hiring</span>
-                </span>
-                </Link>
+          <Link href="/" className="flex items-center gap-3">
+            <span className="font-extrabold text-2xl sm:text-3xl text-slate-900">
+              AI<span className="text-indigo-600">Hiring</span>
+            </span>
+          </Link>
 
-                {/* Desktop Nav */}
+          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
             {!isAuth ? (
               <>
-                {/* <Link
-                  href="/jobs"
-                  className={`${linkBase} ${
-                    pathname === "/jobs" ? linkActive : linkInactive
-                  }`}
-                >
-                  Browse Jobs
-                </Link> */}
                 <Link
                   href="/user/login"
                   className={`${linkBase} ${linkInactive}`}
@@ -66,12 +58,6 @@ export default function Header() {
                 >
                   Companies
                 </Link>
-                {/* <Link
-                  href="/user/register"
-                  className="ml-2 px-4 py-2 text-sm border border-slate-300 rounded-md hover:bg-slate-100 transition text-black"
-                >
-                  Get Started
-                </Link> */}
               </>
             ) : (
               <>
@@ -80,7 +66,7 @@ export default function Header() {
                     <Link
                       href="/user/jobs"
                       className={`${linkBase} ${
-                        pathname === "user/jobs" ? linkActive : linkInactive
+                        pathname === "/user/jobs" ? linkActive : linkInactive
                       }`}
                     >
                       Browse Jobs
@@ -95,14 +81,17 @@ export default function Header() {
                     >
                       My Applications
                     </Link>
-                    {/* <Link
-                      href="/user/profile"
+                    {/* NEW: Practice Interview Link for Desktop */}
+                    <Link
+                      href="/user/mock-interview"
                       className={`${linkBase} ${
-                        pathname === "/user/profile" ? linkActive : linkInactive
+                        pathname === "/user/mock-interview"
+                          ? linkActive
+                          : linkInactive
                       }`}
                     >
-                      Profile
-                    </Link> */}
+                      Practice Interview
+                    </Link>
                   </>
                 )}
 
@@ -130,7 +119,7 @@ export default function Header() {
                     </Link>
                     <Link
                       href="/company/jobs/create"
-                      className="ml-3 px-4 py-2 text-sm hover:bg-slate-100 transition text-black"
+                      className="ml-3 px-4 py-2 text-sm border border-slate-300 rounded-md hover:bg-slate-100 transition text-black"
                     >
                       Post Job
                     </Link>
@@ -139,7 +128,7 @@ export default function Header() {
 
                 <button
                   onClick={handleLogout}
-                  className="ml-3 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-md"
+                  className="ml-3 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-md transition"
                 >
                   Logout
                 </button>
@@ -149,61 +138,73 @@ export default function Header() {
 
           {/* Mobile Toggle */}
           <button
-            className="md:hidden p-2 rounded-md hover:bg-slate-100"
+            className="md:hidden p-2 rounded-md hover:bg-slate-100 text-slate-600"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <X /> : <Menu />}
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white">
-          <div className="px-4 py-3 flex flex-col gap-1">
+        <div className="md:hidden border-t border-slate-200 bg-white absolute w-full shadow-lg pb-4">
+          <div className="px-4 py-3 flex flex-col gap-2">
             {!isAuth ? (
               <>
-                {/* <Link href="/jobs" className={`${linkBase} ${linkInactive}`}>
-                  Browse Jobs
-                </Link>
                 <Link
                   href="/user/login"
-                  className={`${linkBase} ${linkInactive}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`${linkBase} ${linkInactive} block`}
                 >
                   Job Seeker Login
                 </Link>
                 <Link
                   href="/company/login"
-                  className={`${linkBase} ${linkInactive}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`${linkBase} ${linkInactive} block`}
                 >
                   Company Login
                 </Link>
-                <Link
-                  href="/user/register"
-                  className="mt-2 px-4 py-2 border border-slate-300 rounded-md text-sm text-center hover:bg-slate-100"
-                >
-                  Get Started
-                </Link> */}
               </>
             ) : (
               <>
                 {role === "user" && (
                   <>
                     <Link
-                      href="/jobs"
-                      className={`${linkBase} ${linkInactive}`}
+                      href="/user/jobs"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`${linkBase} ${
+                        pathname === "/user/jobs" ? linkActive : linkInactive
+                      } block`}
                     >
                       Browse Jobs
                     </Link>
                     <Link
                       href="/user/dashboard"
-                      className={`${linkBase} ${linkInactive}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`${linkBase} ${
+                        pathname === "/user/dashboard" ? linkActive : linkInactive
+                      } block`}
                     >
                       My Applications
                     </Link>
+                    {/* NEW: Practice Interview Link for Mobile */}
+                    <Link
+                      href="/user/mock-interview"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`${linkBase} ${
+                        pathname === "/user/mock-interview" ? linkActive : linkInactive
+                      } block`}
+                    >
+                      Practice Interview
+                    </Link>
                     <Link
                       href="/user/profile"
-                      className={`${linkBase} ${linkInactive}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`${linkBase} ${
+                        pathname === "/user/profile" ? linkActive : linkInactive
+                      } block`}
                     >
                       Profile
                     </Link>
@@ -212,21 +213,21 @@ export default function Header() {
 
                 {role === "company" && (
                   <>
-                    {/* <Link
-                      href="/company/dashboard"
-                      className={`${linkBase} ${linkInactive}`}
-                    >
-                      Dashboard
-                    </Link> */}
                     <Link
                       href="/company/dashboard"
-                      className={`${linkBase} ${linkInactive}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`${linkBase} ${
+                        pathname === "/company/dashboard" ? linkActive : linkInactive
+                      } block`}
                     >
                       My Jobs
                     </Link>
                     <Link
                       href="/company/jobs/create"
-                      className={`${linkBase} ${linkInactive}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`${linkBase} ${
+                        pathname === "/company/jobs/create" ? linkActive : linkInactive
+                      } block`}
                     >
                       Post Job
                     </Link>
@@ -234,8 +235,11 @@ export default function Header() {
                 )}
 
                 <button
-                  onClick={handleLogout}
-                  className="mt-2 px-3 py-2 text-sm text-left text-red-600 hover:bg-red-50 rounded-md"
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="mt-2 px-3 py-2 text-sm font-medium text-left text-red-600 hover:bg-red-50 rounded-md transition"
                 >
                   Logout
                 </button>
