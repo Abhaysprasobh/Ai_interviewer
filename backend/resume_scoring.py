@@ -4,9 +4,12 @@ import pytesseract
 import re
 
 
+
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 # ----------------------------
 # Extract Resume Text
 # ----------------------------
+
 def extract_resume_text(filepath):
 
     text = ""
@@ -35,7 +38,7 @@ def extract_resume_text(filepath):
 def skill_match_score(resume_text, required_skills):
 
     if not required_skills:
-        return 50
+        return 50  # No skills required means everyone gets 50%
 
     matched = 0
 
@@ -73,7 +76,7 @@ def experience_score(resume_text):
 # ----------------------------
 def education_score(resume_text):
 
-    keywords = ["btech","b.e","bachelor","mtech","master","phd","engineering"]
+    keywords = ["btech","b.e","bachelor","mtech","master","phd","engineering", "bachelor", "master", "doctorate", "university", "college", "degree", "graduation", "postgraduate", "undergraduate", "diploma", "associate", "mba", "ms", "ma", "bsc", "msc", "ba", "ma", "ph.d", "bachelor's", "master's", "doctorate", "b.tech", "m.tech", "b.e", "m.e"]
 
     for word in keywords:
         if word in resume_text:
@@ -87,13 +90,13 @@ def education_score(resume_text):
 # ----------------------------
 def calculate_resume_score(filepath, required_skills, job_description=""):
 
-    resume_text = extract_resume_text(filepath)
+    resume_text = extract_resume_text(filepath) # pdfplunber or pytesseract
 
-    skill_score = skill_match_score(resume_text, required_skills)
+    skill_score = skill_match_score(resume_text, required_skills) # skill scoring
 
-    exp_score = experience_score(resume_text)
+    exp_score = experience_score(resume_text) # experience scoring based on keyword list
 
-    edu_score = education_score(resume_text)
+    edu_score = education_score(resume_text) #
 
     final_score = (
         skill_score * 0.5 +

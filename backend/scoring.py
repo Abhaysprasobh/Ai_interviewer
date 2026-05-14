@@ -98,9 +98,12 @@ def compute_qa_score(
     # keyword score
     kw_score = 0.0
     if keywords:
+        # split into keywords if required keywords exists
         if isinstance(keywords, str):
+            # string
             kws = [k.strip().lower() for k in keywords.split(",") if k.strip()]
         else:
+            # not string to string
             kws = [str(k).strip().lower() for k in keywords if str(k).strip()]
         if kws:
             found = 0

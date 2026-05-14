@@ -18,7 +18,6 @@ def generate_question(context, history=None):
     if history and len(history) > 0:
         history_text = "Previously Asked Questions:\n" + "\n".join([f"- {q}" for q in history])
 
-    # 1. Added CRITICAL CONSTRAINTS here to keep it short
     prompt = f"""
     You are an expert technical interviewer for a **{role}** role.
     Candidate Context:
@@ -47,6 +46,8 @@ def generate_question(context, history=None):
             )
         )
         
+        print(response)
+
         # 2. Added the Markdown Safety Net here to prevent crashes
         text = response.text.strip()
         if text.startswith("```json"):
