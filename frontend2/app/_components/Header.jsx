@@ -107,16 +107,7 @@ export default function Header() {
                     >
                       Dashboard
                     </Link>
-                    <Link
-                      href="/company/jobs"
-                      className={`${linkBase} ${
-                        pathname.startsWith("/company/jobs")
-                          ? linkActive
-                          : linkInactive
-                      }`}
-                    >
-                      My Jobs
-                    </Link>
+                    
                     <Link
                       href="/company/jobs/create"
                       className="ml-3 px-4 py-2 text-sm border border-slate-300 rounded-md hover:bg-slate-100 transition text-black"
@@ -213,7 +204,7 @@ export default function Header() {
 
                 {role === "company" && (
                   <>
-                    <Link
+                    {/* <Link
                       href="/company/dashboard"
                       onClick={() => setMobileMenuOpen(false)}
                       className={`${linkBase} ${
@@ -221,7 +212,7 @@ export default function Header() {
                       } block`}
                     >
                       My Jobs
-                    </Link>
+                    </Link> */}
                     <Link
                       href="/company/jobs/create"
                       onClick={() => setMobileMenuOpen(false)}
