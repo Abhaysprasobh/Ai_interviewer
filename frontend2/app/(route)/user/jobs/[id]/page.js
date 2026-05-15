@@ -86,7 +86,7 @@ export default function JobDetail() {
                         <div className="flex flex-wrap items-center gap-4 text-slate-600 mb-6">
                             <div className="flex items-center gap-2">
                                 <Building2 className="w-5 h-5" />
-                                <span className="font-medium">{job.companyId?.companyName}</span>
+                                <span className="font-medium">{job.company?.companyName}</span>
                             </div>
                             {job.location && (
                                 <div className="flex items-center gap-2">
@@ -104,7 +104,7 @@ export default function JobDetail() {
                             {job.experience && (
                                 <div className="px-4 py-2 bg-slate-100 rounded-lg flex items-center gap-2">
                                     <Briefcase className="w-4 h-4 text-slate-600" />
-                                    <span className="text-sm font-medium text-slate-700">{job.experience}</span>
+                                    <span className="text-sm font-medium text-slate-700">{job.experience} Years</span>
                                 </div>
                             )}
                             {job.salary && (
@@ -197,33 +197,38 @@ export default function JobDetail() {
             )}
 
             {/* Company Info */}
-            {job.companyId && (
+            {job.company && (
                 <div className="bg-white rounded-2xl border border-slate-200 p-8">
-                    <h2 className="text-2xl font-bold text-slate-900 mb-4">About the Company</h2>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-4">
+                        About the Company
+                    </h2>
+
                     <div className="space-y-3">
                         <div>
                             <span className="text-slate-600">Company Name:</span>
+
                             <span className="ml-2 font-medium text-slate-900">
-                                {job.companyId.companyName}
+                                {job.company.companyName}
                             </span>
                         </div>
-                        {job.companyId.website && (
+
+                        {job.company.website && (
                             <div>
                                 <span className="text-slate-600">Website:</span>
+
                                 <a
-                                    href={job.companyId.website}
+                                    href={job.company.website}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="ml-2 text-indigo-600 hover:underline"
                                 >
-                                    {job.companyId.website}
+                                    {job.company.website}
                                 </a>
                             </div>
                         )}
                     </div>
                 </div>
             )}
-
             {/* Bottom Apply Button */}
             <div className="mt-8 text-center">
                 {!hasApplied && (

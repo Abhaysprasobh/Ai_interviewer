@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
     MapPin,
+    Building2,
     Clock,
     Briefcase,
     DollarSign,
@@ -99,7 +100,7 @@ export default function JobsPage() {
                                         {job.experience && (
                                             <span className="flex items-center gap-1">
                                                 <Briefcase className="w-4 h-4" />
-                                                {job.experience}
+                                                {job.experience} years
                                             </span>
                                         )}
 
