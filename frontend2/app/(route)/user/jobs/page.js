@@ -26,7 +26,18 @@ export default function JobsPage() {
     const fetchJobs = async () => {
         try {
             const res = await GlobalApi.getAllJobs();
-            setJobs(res.data || []);
+            const sortedJobs = (res.data || []).sort((a, b) => {
+
+                // Non-applied jobs first
+                if (a.applied !== b.applied) {
+                    return a.applied ? 1 : -1;
+                }
+
+                // Newest first
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+
+            setJobs(sortedJobs);
         } catch (err) {
             console.error(err);
             setError("Failed to load jobs");
