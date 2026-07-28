@@ -1,14 +1,11 @@
 // app/user/register/page.js
 "use client";
 
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
 import GlobalApi from "@/app/_utils/GlobalApi";
-
-import { User, Mail, Lock, Phone, Loader2, ArrowRight, AlertCircle } from "lucide-react";
+import { User, Mail, Lock, Phone, Loader2, ArrowRight, AlertCircle, ShieldCheck } from "lucide-react";
 
 export default function UserRegister() {
     const router = useRouter();
@@ -22,6 +19,10 @@ export default function UserRegister() {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    
+    // NEW: States for the Privacy Policy
+    const [isPrivacyAccepted, setIsPrivacyAccepted] = useState(false);
+    const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -30,6 +31,13 @@ export default function UserRegister() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        
+        // Safety catch: Prevent submission if somehow bypassed
+        if (!isPrivacyAccepted) {
+            setError("You must accept the privacy policy to register.");
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -132,9 +140,59 @@ export default function UserRegister() {
                                 onChange={handleInputChange}
                             />
 
+                            {/* NEW: Privacy Policy Checkbox & Expandable Section */}
+                            <div className="space-y-3 pt-2">
+                                <div className="flex items-start gap-3">
+                                    <input
+                                        type="checkbox"
+                                        id="privacy"
+                                        checked={isPrivacyAccepted}
+                                        onChange={(e) => setIsPrivacyAccepted(e.target.checked)}
+                                        className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                                    />
+                                    <label htmlFor="privacy" className="text-sm text-slate-600 select-none">
+                                        I agree to the{" "}
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.preventDefault(); // Prevents form submission
+                                                setShowPrivacyPolicy(!showPrivacyPolicy);
+                                            }}
+                                            className="text-indigo-600 font-semibold hover:underline outline-none"
+                                        >
+                                            Privacy Policy
+                                        </button>
+                                        <span className="text-red-500 ml-1">*</span>
+                                    </label>
+                                </div>
+
+                                {/* The Expandable Policy Box */}
+                                {showPrivacyPolicy && (
+                                    <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 h-40 overflow-y-auto animate-in fade-in slide-in-from-top-2 shadow-inner">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <ShieldCheck className="h-4 w-4 text-indigo-600"/>
+                                            <h4 className="font-bold text-slate-800">Data Collection & Usage Policy</h4>
+                                        </div>
+                                        <p className="mb-2">
+                                            <strong>1. Audio Transcription:</strong> During mock interviews, your microphone audio is recorded, transcribed into text, and evaluated by AI. The audio files are deleted immediately after transcription.
+                                        </p>
+                                        <p className="mb-2">
+                                            <strong>2. Resume Processing:</strong> Any resumes or profiles you upload are parsed by our systems solely to generate customized interview questions.
+                                        </p>
+                                        <p className="mb-2">
+                                            <strong>3. Data Privacy:</strong> We do not sell your personal data, transcripts, or scores to third parties without your explicit consent. 
+                                        </p>
+                                        <p>
+                                            <strong>4. Right to Deletion:</strong> You retain the right to delete your account and wipe all associated interview history from our database at any time.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* UPDATED: Submit Button (Disabled until checked) */}
                             <button
-                                disabled={loading}
-                                className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-semibold py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+                                disabled={loading || !isPrivacyAccepted}
+                                className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-semibold py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-900 mt-2"
                             >
                                 {loading ? (
                                     <>

@@ -2,7 +2,7 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
 import GlobalApi from '../_utils/GlobalApi';
-import { Mic, Send, Loader2, Play, StopCircle, Sparkles, ArrowRight, FileText, XCircle, BarChart, CheckCircle } from 'lucide-react';
+import { Mic, Send, Loader2, Play, StopCircle, Sparkles, ArrowRight, FileText, XCircle, BarChart, CheckCircle,Settings, Volume2, VolumeX } from 'lucide-react';
 
 export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
   const [role, setRole] = useState(jobTitle || '');
@@ -23,7 +23,30 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
   // Speech State
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef(null);
+  const [micPermissionGranted, setMicPermissionGranted] = useState(false);
   const [skills, setSkills] = useState([]);
+
+  // Audio Control States
+  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+  const audioPlayerRef = useRef(null);
+  const isAudioEnabledRef = useRef(isAudioEnabled); // Safe tracking for async closures
+
+  // Keep the ref synced with state
+  useEffect(() => {
+    isAudioEnabledRef.current = isAudioEnabled;
+  }, [isAudioEnabled]);
+
+  // The Toggle Function
+  const toggleAudio = () => {
+    setIsAudioEnabled(prev => {
+      const newState = !prev;
+      // If they are turning it off, instantly pause any audio currently speaking!
+      if (!newState && audioPlayerRef.current) {
+        audioPlayerRef.current.pause();
+      }
+      return newState;
+    });
+  };
 
   useEffect(() => {
     if (resumeData && resumeData.skills) {
@@ -46,6 +69,7 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
 
 // 1. Function to immediately fail the interview
   const abortInterviewForCheating = async () => {
+    if (audioPlayerRef.current) audioPlayerRef.current.pause();
     if (isRecording) stopRecording(); // Stop the mic immediately
     
     alert("🚨 INTERVIEW TERMINATED: You exited full-screen mode. This has been logged as a proctoring violation.");
@@ -74,6 +98,7 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
   };
 
   const endInterview = () => {
+    if (audioPlayerRef.current) audioPlayerRef.current.pause();
     if (isRecording) stopRecording();
     setQuestion(null);
     setAnswer('');
@@ -89,30 +114,53 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
 
   // --- NEW: Play AI Voice ---
   const playQuestionAudio = async (textToRead) => {
+    if (!isAudioEnabledRef.current) return; // Skip if muted
+
     try {
       const resp = await GlobalApi.textToSpeech({ text: textToRead });
+      
+      // Check again in case they muted it while the API was loading!
+      if (!isAudioEnabledRef.current) return; 
+
       const audioUrl = URL.createObjectURL(resp.data);
       const audio = new Audio(audioUrl);
+      audioPlayerRef.current = audio; // Save it to the ref so we can stop it later
       audio.play();
     } catch (error) {
       console.error("TTS failed to play:", error);
     }
   };
 
- // 1. Start Interview
+// 1. Start Interview
   const startInterview = async () => {
     if (!role) return alert("Please enter a target Job Role to start.");
 
-    // --- PROCTORING TRIGGER: Force Full Screen BEFORE starting ---
+    setLoading(true);
+
+    // --- STEP 1: PRE-FLIGHT MIC CHECK ---
+    // Ask for permission BEFORE going full screen to avoid triggering the proctoring trap.
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // They clicked "Allow"! Stop the tracks immediately so we don't leave the red dot on their tab.
+      stream.getTracks().forEach(track => track.stop());
+      setMicPermissionGranted(true);
+    } catch (err) {
+      console.error("Microphone permission denied:", err);
+      alert("🚨 Microphone access is required for this interview. Please click the lock icon in your URL bar, allow the microphone, and try again.");
+      setLoading(false);
+      return; // Stop the execution completely
+    }
+
+    // --- STEP 2: PROCTORING TRIGGER ---
     try {
       await document.documentElement.requestFullscreen();
     } catch (err) {
       alert("🚨 You must allow full-screen mode to start this proctored interview.");
-      return; // Stop the execution immediately if the browser blocks it
+      setLoading(false);
+      return; 
     }
     // -----------------------------------------------------------
 
-    setLoading(true);
     setFeedback(null);
     setAnswer('');
     setQuestion(null);
@@ -122,12 +170,11 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
       const dataToSend = {
         role: role, 
         skills: skills,
-        application_id: applicationId || null, // <--- Crucial for MongoDB saving!
+        application_id: applicationId || null, 
         education: resumeData?.education || "",
         experience: resumeData?.experience || ""
       };
 
-      // Uses your new GlobalApi!
       const resp = await GlobalApi.startInterview(dataToSend);
       setQuestion(resp.data.question);
       setSessionId(resp.data.session_id); 
@@ -378,24 +425,44 @@ export default function InterviewBot({ resumeData, applicationId, jobTitle }) {
                onChange={(e) => setRole(e.target.value)}
              />
           </div>
-
-          {!question && (
-            <button 
-              onClick={startInterview}
-              disabled={loading}
-              className="bg-indigo-600 text-white px-8 py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition flex items-center gap-2"
-            >
-              {loading ? <Loader2 className="animate-spin h-5 w-5"/> : <Play className="h-5 w-5"/>}
-              Start Interview
-            </button>
-          )}
-
-          {question && (
-             <button onClick={endInterview} className="bg-red-50 text-red-600 border border-red-200 px-6 py-2.5 rounded-lg font-medium hover:bg-red-100 transition flex items-center gap-2">
-               <XCircle className="h-5 w-5"/> End
+{/* ALWAYS VISIBLE ACTION BAR */}
+          <div className="flex items-center gap-3">
+             
+             {/* THE MUTE TOGGLE */}
+             <button 
+               onClick={toggleAudio}
+               className={`p-2.5 rounded-lg border transition ${
+                 isAudioEnabled 
+                 ? 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-sm' 
+                 : 'bg-slate-100 border-slate-200 text-slate-400'
+               }`}
+               title={isAudioEnabled ? "Mute AI Voice" : "Enable AI Voice"}
+             >
+               {isAudioEnabled ? <Volume2 className="h-5 w-5"/> : <VolumeX className="h-5 w-5"/>}
              </button>
-          )}
-        </div>
+
+             {/* PRE-INTERVIEW BUTTONS */}
+             {!question && (
+                <>
+                  <button 
+                    onClick={startInterview}
+                    disabled={loading || !role}
+                    className="bg-indigo-600 text-white px-8 py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  >
+                    {loading ? <Loader2 className="animate-spin h-5 w-5"/> : <Play className="h-5 w-5"/>}
+                    Start
+                  </button>
+                </>
+             )}
+
+             {/* ACTIVE INTERVIEW BUTTON */}
+             {question && (
+                <button onClick={endInterview} className="bg-red-50 text-red-600 border border-red-200 px-6 py-2.5 rounded-lg font-medium hover:bg-red-100 transition flex items-center gap-2 shadow-sm">
+                  <XCircle className="h-5 w-5"/> End
+                </button>
+             )}
+          </div>
+          </div>
       </div>
 
       {/* Main Interaction Area */}
